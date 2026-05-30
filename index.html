@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#007aff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lumio">
+<title>Lumio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+:root{
+  --bg:#f2f2f7;--card:#fff;--text:#1c1c1e;--text2:#3c3c43;--text3:#8e8e93;
+  --border:#e5e5ea;--blue:#007aff;--green:#34c759;--orange:#ff9500;--red:#ff3b30;
+  --purple:#af52de;--teal:#32ade6;--pink:#ff2d55;--navy:#5856d6;
+  --radius:14px;--radius-sm:10px;--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;font-size:14px;color:var(--text)}
+body.lang-bn *{font-family:'Noto Sans Bengali',-apple-system,sans-serif}
+#app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#screen-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
+#screen-area::-webkit-scrollbar{display:none}
+
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 4px;font-size:12px;font-weight:600;color:var(--text);position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(242,242,247,.85)}
+
+#bottom-nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 calc(8px + var(--safe-bottom));flex-shrink:0}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:500;color:var(--text3);padding:0 10px;cursor:pointer;transition:color .15s;min-width:52px;min-height:52px;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.nav-item i{font-size:22px;transition:transform .15s}
+.nav-item.active{color:var(--blue)}
+.nav-item.active i{transform:scale(1.08)}
+.nav-label{font-size:10px;line-height:1}
+
+.screen{display:none;min-height:100%;padding-bottom:24px;animation:fadeIn .2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-size:28px;font-weight:700;color:var(--text);padding:4px 20px 2px;letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--text3);padding:0 20px 12px}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);padding:12px 20px 4px;letter-spacing:.5px;text-transform:uppercase}
+
+.card{background:var(--card);border-radius:var(--radius);margin:0 16px 10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-sm{padding:10px 14px}
+
+.row{display:flex;align-items:center;gap:10px}
+.row-sep{border-bottom:.5px solid var(--border)}
+.row-sep:last-child{border-bottom:none}
+.row-item{padding:10px 0}
+.cell-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.cell-body{flex:1;min-width:0}
+.cell-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.3}
+.cell-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.cell-right{color:var(--text3);font-size:12px;flex-shrink:0}
+.chevron{color:#c7c7cc;font-size:14px;margin-left:4px}
+
+.prog-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:5px}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s ease}
+
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;flex-shrink:0;cursor:pointer}
+.badge-blue{background:#e5f0ff;color:#0060d0}
+.badge-green{background:#e8f8ef;color:#1a7a36}
+.badge-orange{background:#fff8e5;color:#b36000}
+.badge-red{background:#ffeef0;color:#c0001a}
+.badge-purple{background:#f5eeff;color:#7a2ebc}
+.badge-gray{background:#f2f2f7;color:var(--text3)}
+
+.pill-row{display:flex;gap:6px;padding:4px 16px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pill-row::-webkit-scrollbar{display:none}
+.pill{border:1.5px solid var(--border);border-radius:20px;font-family:inherit;font-size:12px;font-weight:500;padding:5px 14px;cursor:pointer;background:var(--card);color:var(--text2);white-space:nowrap;transition:all .15s;flex-shrink:0;min-height:36px;touch-action:manipulation}
+.pill.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+.toggle{width:44px;height:26px;border-radius:13px;position:relative;flex-shrink:0;cursor:pointer;transition:background .2s;min-width:44px;touch-action:manipulation}
+.toggle.on{background:var(--green)}
+.toggle.off{background:#e5e5ea}
+.toggle-thumb{width:22px;height:22px;background:#fff;border-radius:50%;position:absolute;top:2px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.toggle.on .toggle-thumb{left:20px}
+.toggle.off .toggle-thumb{left:2px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;font-size:13px;font-weight:600;padding:10px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .15s;min-height:44px;touch-action:manipulation}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:var(--bg);color:var(--blue);border:.5px solid var(--border)}
+.btn:active{opacity:.75;transform:scale(.98)}
+.btn-sm{font-size:12px;padding:7px 14px;border-radius:8px;min-height:38px}
+.btn-red{background:#ffeef0;color:var(--red)}
+
+.alert-card{border-radius:0 10px 10px 0;border-left:3px solid;padding:9px 12px;margin:0 0 0}
+.alert-warn{background:#fff8e5;border-color:var(--orange)}
+.alert-info{background:#e5f0ff;border-color:var(--blue)}
+.alert-title{font-size:12px;font-weight:600}
+.alert-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-box{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat-num{font-size:20px;font-weight:700;line-height:1}
+.stat-label{font-size:10px;color:var(--text3);margin-top:3px}
+
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.inp{width:100%;background:var(--bg);border:.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;color:var(--text);padding:10px 13px;outline:none;-webkit-appearance:none}
+.inp:focus{border-color:var(--blue)}
+
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:flex-end}
+#overlay.show{display:flex;animation:fadeBg .2s}
+@keyframes fadeBg{from{background:transparent}to{background:rgba(0,0,0,.4)}}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;padding:16px;width:100%;max-height:88vh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.sheet-title{font-size:17px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.sheet-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;margin-bottom:12px;min-height:36px;touch-action:manipulation}
+
+/* Flashcard */
+.flashcard{background:linear-gradient(135deg,#007aff,#5856d6);border-radius:18px;padding:20px;text-align:center;color:#fff;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer;transition:transform .15s;user-select:none;touch-action:manipulation}
+.flashcard:active{transform:scale(.97)}
+.flashcard.flipped{background:linear-gradient(135deg,#34c759,#32ade6)}
+.fc-q{font-size:15px;font-weight:600;line-height:1.4;margin-top:2px;text-align:left;align-self:flex-start}
+.fc-a{font-size:13px;opacity:.9;margin-top:8px;text-align:left;align-self:flex-start;line-height:1.5}
+.fc-src{font-size:9px;opacity:.6;margin-top:6px;align-self:flex-end}
+.mcq-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;width:100%}
+.mcq-opt{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.28);border-radius:10px;padding:8px 10px;color:#fff;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;text-align:left;transition:all .15s;font-family:inherit;min-height:44px;touch-action:manipulation}
+.mcq-opt.correct-pick{background:rgba(52,199,89,.5);border-color:#34c759}
+.mcq-opt.wrong-pick{background:rgba(255,59,48,.4);border-color:#ff3b30;opacity:.75}
+.mcq-opt.reveal-correct{background:rgba(52,199,89,.5);border-color:#34c759}
+.mcq-letter{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* AI Chat */
+.ai-bubble{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.55;margin-bottom:8px}
+.ai-bubble.ai{background:var(--bg);color:var(--text);border-radius:14px 14px 14px 4px;align-self:flex-start}
+.ai-bubble.user{background:var(--blue);color:#fff;border-radius:14px 14px 4px 14px;align-self:flex-end;margin-left:auto}
+.chat-area{display:flex;flex-direction:column;padding:12px 16px;gap:4px;min-height:200px}
+.chat-input-row{display:flex;gap:8px;padding:10px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-top:.5px solid var(--border)}
+.chat-input-row .inp{flex:1}
+.send-btn{width:44px;height:44px;border-radius:50%;background:var(--blue);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:manipulation}
+
+.coming-soon{opacity:.45;pointer-events:none;filter:grayscale(.3)}
+.cs-badge{display:inline-block;background:#e5e5ea;color:var(--text3);font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;margin-left:6px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(0,122,255,.2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:32px 20px;color:var(--text3)}
+.empty i{font-size:36px;opacity:.3;margin-bottom:10px;display:block}
+.empty-title{font-size:13px;font-weight:600;color:var(--text2)}
+.empty-sub{font-size:11px;margin-top:4px}
+
+/* Charts */
+.chart-legend{flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.chart-legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2)}
+.chart-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Double-tap hint */
+.dtap-hint{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.76);color:#fff;font-size:11px;padding:6px 16px;border-radius:20px;z-index:60;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.dtap-hint.show{opacity:1}
+
+/* Chapter marks slider */
+.marks-slider{width:100%;height:4px;border-radius:2px;-webkit-appearance:none;appearance:none;background:var(--border);outline:none;margin:6px 0}
+.marks-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+
+/* API key indicator */
+.api-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.api-dot.ok{background:var(--green)}
+.api-dot.no{background:#e5e5ea}
+
+@media (hover:none) and (pointer:coarse){
+  .btn,.pill,.nav-item,.row-item,.flashcard,.mcq-opt{-webkit-tap-highlight-color:transparent}
+  input,select,textarea{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+ <div id="screen-area">
+
+  <!-- ====== HOME ====== -->
+  <div class="screen active" id="screen-home">
+    <div class="status-bar"><span id="clock">9:41</span><span style="font-size:13px">●●●</span></div>
+    <div style="padding:4px 20px 0">
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.4px">
+        <span id="greeting">Good morning</span><span id="greeting-nick" style="color:var(--blue)"></span>
+      </div>
+      <div style="font-size:13px;color:var(--text3);margin-top:2px" id="home-date">Friday, 30 May</div>
+    </div>
+
+    <div class="section-label">HSC-27 Target</div>
+    <div class="card">
+      <div class="row">
+        <div class="cell-icon" style="background:#e5f0ff"><i class="fa-solid fa-trophy" style="color:var(--blue)"></i></div>
+        <div class="cell-body">
+          <div class="cell-title" style="font-weight:600">GPA 5.00 target</div>
+          <div class="cell-sub">Estimated <span id="gpa-label">0.0</span> · HSC Commerce 2027</div>
+          <div class="prog-bar"><div class="prog-fill" id="gpa-fill" style="width:0%;background:var(--blue)"></div></div>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:var(--blue)" id="gpa-pct">0%</div>
+      </div>
+    </div>
+
+    <div class="section-label" id="lbl-insights">Insights</div>
+    <div class="card">
+      <div class="grid2" style="gap:8px;margin-bottom:12px">
+        <div class="stat-box"><div class="stat-num" style="color:var(--blue)" id="stat-streak">0</div><div class="stat-label" id="lbl-streak">Day streak</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--orange)" id="stat-mistake">0</div><div class="stat-label" id="lbl-mistake">Mistake bank</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green)" id="stat-due">0</div><div class="stat-label" id="lbl-due">Due reviews</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--purple)" id="stat-overall">0%</div><div class="stat-label" id="lbl-overall">Overall done</div></div>
+      </div>
+      <!-- Donut Chart — Study -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px" id="lbl-study-chart">Study Progress</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <canvas id="donut-chart" width="86" height="86" style="flex-shrink:0"></canvas>
+          <div class="chart-legend" id="donut-legend"></div>
+        </div>
+      </div>
+      <!-- Bar Chart — Skills -->
+      <div style="border-top:.5px solid var(--border);padding-top:10px">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px" id="lbl-skills-chart">Skills Progress</div>
+        <canvas id="bar-chart" width="600" height="72" style="width:100%;height:72px"></canvas>
+      </div>
+      <div class="alert-card alert-warn" style="margin:10px 0 0">
+        <div class="alert-title" style="color:#b36000" id="home-alert-title">⚠ Weak topic alert</div>
+        <div class="alert-sub" id="home-alert-sub">Add chapters to see weak topic alerts</div>
+      </div>
+    </div>
+
+    <div class="section-label" id="lbl-today-study">Today's study</div>
+    <div class="card card-sm"><div id="today-tasks"></div></div>
+
+    <div class="section-label" id="lbl-skills-today">Skills today</div>
+    <div class="card card-sm" id="skills-snapshot"></div>
+  </div>
+
+  <!-- ====== STUDY ====== -->
+  <div class="screen" id="screen-study">
+    <div class="status-bar"><span id="clock2">9:41</span><span style="font-size:13px">●●●</span></div>
+    <div class="page-title" id="lbl-study-title">Study</div>
+    <div class="page-sub">HSC Commerce 2027</div>
+
+    <div class="section-label" id="lbl-subjects">Subjects</div>
+    <div class="card card-sm" id="subjects-list"></div>
+
+    <div class="section-label">Spaced Review Due</div>
+    <div class="card card-sm" id="spaced-list">
+      <div class="empty"><i class="fa-regular fa-clock"></i><div class="empty-title">No reviews due</div><div class="empty-sub">Add & activate chapters</div></div>
+    </div>
+
+    <div class="section-label" id="lbl-mistake-bank">Mistake Bank</div>
+    <div class="card card-sm" id="mistake-list">
+      <div style="font-size:12px;color:var(--text3);padding:4px 0">Wrong flashcard answers appear here automatically.</div>
+    </div>
+
+    <div class="section-label" id="lbl-weekly">Weekly Review</div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text)" id="week-label">This Week</div>
+      <div class="row" style="gap:10px;margin-bottom:10px">
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--green)" id="week-done">0</div>
+          <div style="font-size:10px;color:var(--text3)">Done</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--blue)" id="week-active">0</div>
+          <div style="font-size:10px;color:var(--text3)">Active</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--text3)" id="week-pending">0</div>
+          <div style="font-size:10px;color:var(--text3)">Pending</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="openSheet('sheet-weekly')"><i class="fa-solid fa-pen"></i> Write weekly review</button>
+    </div>
+
+    <div style="padding:0 16px 10px">
+      <button class="btn btn-blue" style="width:100%" onclick="openSheet('sheet-add-chapter')">
+        <i class="fa-solid fa-plus"></i> <span id="lbl-add-chapter">Add chapter / topic</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== SKILLS ====== -->
+  <div class="screen" id="screen-skills">
+    <div class="status-bar"><span id="clock3">9:41</span><span style="font-size:13px">●●●</span></div>
+    <div class="page-title" id="lbl-skills-title">Skills</div>
+    <div class="page-sub" id="lbl-skills-sub">Your skill development tracker</div>
+
+    <div class="section-label" id="lbl-skill-areas">Skill Areas</div>
+    <div class="card card-sm" id="skills-list"></div>
+
+    <div class="section-label">Weekly Stats</div>
+    <div class="card">
+      <div class="row" style="gap:10px;margin-bottom:10px">
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--green)" id="sk-done">0</div>
+          <div style="font-size:10px;color:var(--text3)">Done</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--blue)" id="sk-active">0</div>
+          <div style="font-size:10px;color:var(--text3)">Active</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--text3)" id="sk-pending">0</div>
+          <div style="font-size:10px;color:var(--text3)">Pending</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="openSheet('sheet-weekly')"><i class="fa-solid fa-pen"></i> Write weekly review</button>
+    </div>
+
+    <div style="padding:0 16px 10px">
+      <button class="btn btn-blue" style="width:100%" onclick="openSheet('sheet-add-skill-el')">
+        <i class="fa-solid fa-plus"></i> <span id="lbl-add-el">Add element / part</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== CARDS ====== -->
+  <div class="screen" id="screen-cards">
+    <div class="status-bar"><span>9:41</span><span style="font-size:13px">●●●</span></div>
+    <div class="page-title" id="lbl-cards-title">Cards</div>
+    <div class="page-sub" id="lbl-cards-sub">Flashcards & MCQ · HSC Commerce</div>
+
+    <div class="pill-row" id="cards-filter"></div>
+
+    <div class="section-label" id="lbl-fc-session">Flashcard session</div>
+    <div style="padding:0 16px 4px">
+      <div class="flashcard" id="flashcard" onclick="handleCardTap()">
+        <div class="fc-q" id="fc-question" style="width:100%">Loading…</div>
+        <div class="fc-a" id="fc-answer" style="display:none;width:100%"></div>
+        <div id="fc-options" class="mcq-opts" style="display:none"></div>
+        <div class="fc-src" id="fc-src"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px" id="fc-action-row">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="cardResult('wrong')"><i class="fa-solid fa-xmark" style="color:var(--red)"></i> Wrong</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="cardResult('hard')"><i class="fa-solid fa-minus" style="color:var(--orange)"></i> Hard</button>
+        <button class="btn btn-blue btn-sm" style="flex:1" onclick="cardResult('good')"><i class="fa-solid fa-check"></i> Got it</button>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text3)" id="card-count">Card 1 · Tap to flip</div>
+    </div>
+
+    <div style="padding:0 16px 4px">
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="loadMCQFromSources()">
+        <i class="fa-solid fa-rotate" style="color:var(--blue)"></i> Load more MCQ from HSC trusted sources
+      </button>
+    </div>
+
+    <div class="section-label" id="lbl-ref-boxes">Reference boxes</div>
+    <div class="card card-sm" onclick="openSheet('sheet-formulas')" style="cursor:pointer">
+      <div class="row">
+        <div class="cell-icon" style="background:#e5f0ff"><i class="fa-solid fa-square-root-variable" style="color:var(--blue)"></i></div>
+        <div class="cell-body"><div class="cell-title">Formulas</div><div class="cell-sub">Accounting, Statistics, ICT</div></div>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+    </div>
+    <div class="card card-sm" onclick="openSheet('sheet-notes')" style="cursor:pointer">
+      <div class="row">
+        <div class="cell-icon" style="background:#e8f8ef"><i class="fa-solid fa-note-sticky" style="color:var(--green)"></i></div>
+        <div class="cell-body"><div class="cell-title">Cornell Notes</div><div class="cell-sub">All subjects</div></div>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+    </div>
+    <div class="card card-sm" onclick="openSheet('sheet-dyk')" style="cursor:pointer">
+      <div class="row">
+        <div class="cell-icon" style="background:#fff8e5"><i class="fa-solid fa-lightbulb" style="color:var(--orange)"></i></div>
+        <div class="cell-body"><div class="cell-title">Do You Know?</div><div class="cell-sub">Facts & mnemonics</div></div>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+    </div>
+    <div style="padding:0 16px 10px;margin-top:4px">
+      <button class="btn btn-blue" style="width:100%" onclick="openSheet('sheet-add-card')">
+        <i class="fa-solid fa-plus"></i> <span id="lbl-add-card">Add flashcard / formula / note</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== AI ====== -->
+  <div class="screen" id="screen-ai">
+    <div class="status-bar"><span>9:41</span><span style="font-size:13px">●●●</span></div>
+    <div class="page-title">AI Workspace</div>
+    <div class="page-sub">Multi-model · In-app · No redirect</div>
+
+    <div class="pill-row" id="ai-model-row">
+      <button class="pill active" id="m-claude" onclick="selectModel('claude',this)">Claude</button>
+      <button class="pill" id="m-gpt" onclick="selectModel('gpt',this)">ChatGPT</button>
+      <button class="pill" id="m-gemini" onclick="selectModel('gemini',this)">Gemini</button>
+      <button class="pill" id="m-perp" onclick="selectModel('perp',this)">Perplexity</button>
+      <button class="pill" id="m-meta" onclick="selectModel('meta',this)">Meta AI</button>
+    </div>
+
+    <div class="pill-row">
+      <button class="pill active" id="mode-tutor" onclick="selectMode('tutor',this)">Tutor</button>
+      <button class="pill" id="mode-exam" onclick="selectMode('exam',this)">Exam</button>
+      <button class="pill" id="mode-revision" onclick="selectMode('revision',this)">Revision</button>
+      <button class="pill" id="mode-simplify" onclick="selectMode('simplify',this)">Simplify</button>
+      <button class="pill" id="mode-deep" onclick="selectMode('deep',this)">Deep</button>
+    </div>
+
+    <!-- API key row -->
+    <div class="card card-sm" id="ai-key-row" style="display:none">
+      <div class="row">
+        <div class="api-dot no" id="ai-key-dot"></div>
+        <div class="cell-body">
+          <div class="cell-title" id="ai-key-label">API Key Required</div>
+          <div class="cell-sub" id="ai-key-sub">Tap Connect to add your key — stays on device</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openSheet('sheet-api-key')">Connect</button>
+      </div>
+    </div>
+
+    <!-- Google sync row -->
+    <div class="card card-sm">
+      <div class="row">
+        <div class="cell-icon" style="background:#fce8e6"><i class="fa-brands fa-google" style="color:#ea4335;font-size:15px"></i></div>
+        <div class="cell-body">
+          <div class="cell-title">Google Account</div>
+          <div class="cell-sub" id="google-status">Not connected · Sync notes & history</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="google-btn" onclick="connectGoogle()">Sync</button>
+      </div>
+    </div>
+
+    <div class="section-label">Web sources</div>
+    <div class="card card-sm">
+      <div id="sources-list"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openSheet('sheet-add-source')"><i class="fa-solid fa-plus"></i> Add source</button>
+    </div>
+
+    <div class="section-label">Chat</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="chat-area" id="chat-messages">
+        <div class="ai-bubble ai"><strong>Claude — Tutor mode</strong><br>Hi! I'm your HSC study assistant. Ask me anything from your syllabus, upload a PDF, or switch model above. What shall we study?</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="inp" id="chat-input" placeholder="Ask anything…" type="text" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="send-btn" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <div style="padding:10px 16px">
+      <button class="btn btn-ghost" style="width:100%" onclick="openSheet('sheet-pdf')"><i class="fa-solid fa-file-pdf" style="color:var(--red)"></i> Upload PDF / book chapter</button>
+    </div>
+  </div>
+
+  <!-- ====== ME ====== -->
+  <div class="screen" id="screen-me">
+    <div class="status-bar"><span>9:41</span><span style="font-size:13px">●●●</span></div>
+    <div class="page-title">Me</div>
+    <div class="page-sub" id="profile-date">Friday, 30 May 2026</div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:12px">
+        <div class="avatar" id="av-letter">Y</div>
+        <div class="cell-body">
+          <div style="font-size:16px;font-weight:700" id="prof-name">Your Name</div>
+          <div style="font-size:12px;color:var(--text3)" id="prof-sub">HSC-27 Commerce · Sylhet</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openSheet('sheet-biodata')">Edit</button>
+      </div>
+      <div class="grid2" style="gap:8px">
+        <div class="stat-box"><div class="stat-num" style="color:var(--blue)" id="prof-streak">0</div><div class="stat-label">Day streak</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green)" id="prof-overall">0%</div><div class="stat-label">Overall done</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--orange)" id="prof-gpa">0.0</div><div class="stat-label">Est. GPA</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--purple)" id="prof-mistake">0</div><div class="stat-label">Mistake bank</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Skills progress</div>
+    <div class="card" id="me-skills-card"><div class="empty"><i class="fa-solid fa-bolt-lightning"></i><div class="empty-title">No skill data yet</div><div class="empty-sub">Go to Skills tab to add elements</div></div></div>
+
+    <div class="section-label">Daily alarms</div>
+    <div class="card card-sm" id="alarms-list"></div>
+
+    <div class="section-label">Permissions</div>
+    <div class="card card-sm">
+      <div class="row row-sep row-item"><div class="cell-body cell-title" style="font-size:12px">Notifications</div><span class="badge badge-green">Allowed</span></div>
+      <div class="row row-sep row-item"><div class="cell-body cell-title" style="font-size:12px">Storage access</div><span class="badge badge-green">Allowed</span></div>
+      <div class="row row-sep row-item"><div class="cell-body cell-title" style="font-size:12px">Microphone</div><span class="badge badge-green">Allowed</span></div>
+      <div class="row row-item"><div class="cell-body cell-title" style="font-size:12px">Camera (doc scan)</div><span class="badge badge-orange">Ask each time</span></div>
+    </div>
+
+    <div class="section-label" id="lbl-app-settings">App</div>
+    <div class="card card-sm">
+      <div class="row row-sep row-item">
+        <div class="cell-icon" style="background:#f2f2f7"><i class="fa-solid fa-moon" style="color:var(--text3)"></i></div>
+        <div class="cell-body cell-title" id="lbl-dark-mode">Dark mode</div>
+        <div class="toggle off" id="dark-toggle" onclick="toggleDark()"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="row row-sep row-item">
+        <div class="cell-icon" style="background:#f2f2f7"><i class="fa-solid fa-globe" style="color:var(--blue)"></i></div>
+        <div class="cell-body">
+          <div class="cell-title" id="lbl-language">Language</div>
+          <div class="cell-sub">English / বাংলা</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="pill active" id="lang-en" onclick="setLang('en',this)" style="padding:4px 12px;min-height:32px;font-size:11px">EN</button>
+          <button class="pill" id="lang-bn" onclick="setLang('bn',this)" style="padding:4px 12px;min-height:32px;font-size:11px">বাং</button>
+        </div>
+      </div>
+      <div class="row row-item" style="cursor:pointer" onclick="openSheet('sheet-biodata')">
+        <div class="cell-icon" style="background:#f2f2f7"><i class="fa-solid fa-user" style="color:var(--text3)"></i></div>
+        <div class="cell-body cell-title" id="lbl-edit-bio">Edit biodata</div>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+    </div>
+  </div>
+
+ </div><!-- /screen-area -->
+
+ <nav id="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="goTo('home')">
+    <i class="fa-solid fa-house"></i><span class="nav-label" id="nl-home">Home</span>
+  </div>
+  <div class="nav-item" id="nav-study" ontouchend="handleStudyTap(event)" onclick="handleStudyClick(event)">
+    <i class="fa-solid fa-book-open" id="study-nav-icon"></i><span class="nav-label" id="nl-study">Study</span>
+  </div>
+  <div class="nav-item" id="nav-cards" onclick="goTo('cards')">
+    <i class="fa-solid fa-layer-group"></i><span class="nav-label" id="nl-cards">Cards</span>
+  </div>
+  <div class="nav-item" id="nav-ai" onclick="goTo('ai')">
+    <i class="fa-solid fa-sparkles"></i><span class="nav-label" id="nl-ai">AI</span>
+  </div>
+  <div class="nav-item" id="nav-me" onclick="goTo('me')">
+    <i class="fa-solid fa-circle-user"></i><span class="nav-label" id="nl-me">Me</span>
+  </div>
+ </nav>
+</div>
+
+<div class="dtap-hint" id="dtap-hint">Double-tap for Skills ⚡</div>
+
+<div id="overlay" onclick="closeSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div id="sheet-content"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TRANSLATIONS ===== */
+const LANG={
+  en:{
+    good_morning:'Good morning',good_afternoon:'Good afternoon',good_evening:'Good evening',
+    home:'Home',study:'Study',cards:'Cards',ai:'AI',me:'Me',skills:'Skills',
+    insights:'Insights',today_study:"Today's study",skills_today:'Skills today',
+    subjects:'Subjects',weekly:'Weekly Review',mistake_bank:'Mistake Bank',
+    day_streak:'Day streak',mistake_count:'Mistake bank',due:'Due reviews',overall:'Overall done',
+    active:'Active',done:'Done',pending:'Pending',i_paper:'I Paper',ii_paper:'II Paper',
+    chapters:'Chapters',add_chapter:'Add chapter / topic',edit:'Edit',del:'Delete',save:'Save',
+    skill_areas:'Skill Areas',add_el:'Add element / part',language:'Language',
+    dark_mode:'Dark mode',edit_bio:'Edit biodata',fc_session:'Flashcard session',
+    ref_boxes:'Reference boxes',add_card:'Add flashcard / formula / note',app:'App',
+    tap_flip:'Tap to flip',sel_ans:'Select the correct answer',marks:'Marks',
+    study_chart:'Study Progress',skills_chart:'Skills Progress'
+  },
+  bn:{
+    good_morning:'শুভ সকাল',good_afternoon:'শুভ বিকাল',good_evening:'শুভ সন্ধ্যা',
+    home:'হোম',study:'পড়াশোনা',cards:'কার্ড',ai:'এআই',me:'আমি',skills:'দক্ষতা',
+    insights:'বিশ্লেষণ',today_study:'আজকের পড়া',skills_today:'আজকের দক্ষতা',
+    subjects:'বিষয়সমূহ',weekly:'সাপ্তাহিক পর্যালোচনা',mistake_bank:'ভুলের তালিকা',
+    day_streak:'দিনের ধারা',mistake_count:'ভুলের সংখ্যা',due:'পুনরালোচনা বাকি',overall:'মোট সম্পন্ন',
+    active:'সক্রিয়',done:'সম্পন্ন',pending:'মুলতুবি',i_paper:'প্রথম পত্র',ii_paper:'দ্বিতীয় পত্র',
+    chapters:'অধ্যায়',add_chapter:'অধ্যায় যোগ করুন',edit:'সম্পাদনা',del:'মুছুন',save:'সংরক্ষণ',
+    skill_areas:'দক্ষতার ক্ষেত্র',add_el:'উপাদান / অংশ যোগ করুন',language:'ভাষা',
+    dark_mode:'ডার্ক মোড',edit_bio:'তথ্য সম্পাদনা',fc_session:'ফ্লাশকার্ড সেশন',
+    ref_boxes:'রেফারেন্স বাক্স',add_card:'ফ্লাশকার্ড / সূত্র / নোট যোগ করুন',app:'অ্যাপ',
+    tap_flip:'উল্টাতে ট্যাপ করুন',sel_ans:'সঠিক উত্তর বেছে নিন',marks:'নম্বর',
+    study_chart:'পড়াশোনার অগ্রগতি',skills_chart:'দক্ষতার অগ্রগতি'
+  }
+};
+function t(k){const l=(typeof DATA!=='undefined')&&DATA.settings?DATA.settings.language:'en';return LANG[l]?.[k]||LANG.en[k]||k;}
+
+/* ===== DATA ===== */
+const DATA={
+  profile:{name:'',nickname:'',college:'',phone:'',email:'',location:'Sylhet, Bangladesh'},
+  subjects:[
+    {name:'Accounting', color:'#007aff',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+    {name:'ICT',        color:'#34c759',hasPapers:false,chapters:[]},
+    {name:'Statistics', color:'#ff9500',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+    {name:'Bangla',     color:'#af52de',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+    {name:'English',    color:'#ff3b30',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+    {name:'BOM',        color:'#32ade6',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+    {name:'PMM',        color:'#ff6b00',hasPapers:true, papers:{I:{name:'I Paper',chapters:[]},II:{name:'II Paper',chapters:[]}}},
+  ],
+  skills:[
+    {name:'Motion Graphics',   color:'#ff9500',icon:'fa-film',    comingSoon:false,parts:[
+      {id:'mg1',name:'Part I · Basics',   elements:[]},
+      {id:'mg2',name:'Part II · Advanced',elements:[]}
+    ]},
+    {name:'Data Analysis',     color:'#34c759',icon:'fa-chart-bar',comingSoon:false,parts:[
+      {id:'da1',name:'Part I · Python & SQL',    elements:[]},
+      {id:'da2',name:'Part II · Visualization',  elements:[]}
+    ]},
+    {name:'English Proficiency',color:'#007aff',icon:'fa-language',comingSoon:false,parts:[
+      {id:'en1',name:'Part I · Reading & Writing',elements:[]},
+      {id:'en2',name:'Part II · Grammar & Vocab', elements:[]}
+    ]},
+    {name:'Data Science',      color:'#af52de',icon:'fa-flask',   comingSoon:true, parts:[]},
+  ],
+  flashcards:[
+    {q:'Which of the following is a current asset?',options:['Machinery','Cash in hand','Building','Goodwill'],correct:1,sub:'Accounting',src:'sattacademy.com'},
+    {q:'The accounting equation is:',options:['Assets = Capital – Liabilities','Assets = Capital + Liabilities','Capital = Assets + Liabilities','Assets = Revenue – Expenses'],correct:1,sub:'Accounting',src:'10minuteschool.com'},
+    {q:'Which is NOT a fixed asset?',options:['Land','Building','Stock in trade','Machinery'],correct:2,sub:'Accounting',src:'nctb.gov.bd'},
+    {q:'A balance sheet shows the:',options:['Profit or loss','Financial position at a date','Cash flows','Revenue earned'],correct:1,sub:'Accounting',src:'sattacademy.com'},
+    {q:'Depreciation is:',options:['Increase in asset value','Decrease in asset value over time','A cash expense only','A current liability'],correct:1,sub:'Accounting',src:'10minuteschool.com'},
+    {q:'Gross Profit = Revenue –',options:['All expenses','Cost of Goods Sold','Net loss','Operating expenses'],correct:1,sub:'Accounting',src:'nctb.gov.bd'},
+    {q:'The mean of 5, 10 and 15 is:',options:['8','10','12','15'],correct:1,sub:'Statistics',src:'sattacademy.com'},
+    {q:'Standard deviation = 0 means:',options:['All values are identical','No data','High variability','Data is missing'],correct:0,sub:'Statistics',src:'10minuteschool.com'},
+    {q:'Median divides the distribution into:',options:['3 equal parts','4 equal parts','2 equal halves','10 deciles'],correct:2,sub:'Statistics',src:'nctb.gov.bd'},
+    {q:'Which is NOT a measure of central tendency?',options:['Mean','Median','Mode','Range'],correct:3,sub:'Statistics',src:'sattacademy.com'},
+    {q:'Which is NOT a management function?',options:['Planning','Organizing','Manufacturing','Controlling'],correct:2,sub:'BOM',src:'sattacademy.com'},
+    {q:'In SWOT, "O" stands for:',options:['Output','Opportunity','Options','Organization'],correct:1,sub:'BOM',src:'10minuteschool.com'},
+    {q:'MBO stands for Management by:',options:['Objectives','Orders','Operations','Oversight'],correct:0,sub:'BOM',src:'nctb.gov.bd'},
+    {q:'Line organization feature:',options:['Many committees','Direct chain of command','Matrix structure','No hierarchy'],correct:1,sub:'BOM',src:'sattacademy.com'},
+    {q:'Marketing mix consists of how many Ps?',options:['3','4','5','6'],correct:1,sub:'PMM',src:'sattacademy.com'},
+    {q:'Market segmentation means:',options:['Dividing market into groups','Selling in segments','Segment pricing','Creating new markets'],correct:0,sub:'PMM',src:'10minuteschool.com'},
+    {q:'Consumer market (B2C) means:',options:['Business to business','Business to consumer','Bank to customer','Bulk to companies'],correct:1,sub:'PMM',src:'nctb.gov.bd'},
+    {q:'Which is NOT part of marketing mix?',options:['Product','Price','Profit','Promotion'],correct:2,sub:'PMM',src:'sattacademy.com'},
+    {q:'Decimal value of binary 1010 is:',options:['8','10','12','14'],correct:1,sub:'ICT',src:'sattacademy.com'},
+    {q:'CPU stands for:',options:['Control Processing Unit','Central Processing Unit','Computer Personal Unit','Core Processing Utility'],correct:1,sub:'ICT',src:'10minuteschool.com'},
+    {q:'RAM is:',options:['Permanent memory','Temporary/volatile memory','Read-only storage','Secondary storage'],correct:1,sub:'ICT',src:'nctb.gov.bd'},
+    {q:'HTTP stands for:',options:['HyperText Transfer Protocol','Host Transfer Text Protocol','High Text Transit Program','HyperText Transit Port'],correct:0,sub:'ICT',src:'sattacademy.com'},
+    {q:'Which is an input device?',options:['Monitor','Printer','Keyboard','Speaker'],correct:2,sub:'ICT',src:'10minuteschool.com'},
+    {q:'"Amar Sonar Bangla" is a:',options:['Poem','Novel','Drama','Song / national anthem'],correct:3,sub:'Bangla',src:'sattacademy.com'},
+    {q:'Which is a noun?',options:['Beautiful','Quickly','Happiness','Running fast'],correct:2,sub:'English',src:'sattacademy.com'},
+    {q:'Passive of "He reads a book" is:',options:['A book is read by him','A book was read','He had read a book','Reading a book'],correct:0,sub:'English',src:'10minuteschool.com'},
+    {q:'Which is a compound sentence?',options:['He ran fast','She sings and he dances','Because it rained we stayed','The tall man walked'],correct:1,sub:'English',src:'nctb.gov.bd'},
+  ],
+  alarms:[
+    {label:'Morning study',   time:'07:00',repeat:'Every day',on:false,color:'var(--blue)'},
+    {label:'Afternoon review',time:'15:00',repeat:'Weekdays', on:false,color:'var(--orange)'},
+    {label:'Night revision',  time:'21:00',repeat:'Every day',on:false,color:'var(--red)'},
+  ],
+  sources:['sattacademy.com','10minuteschool.com','nctb.gov.bd'],
+  apiKeys:{gpt:'',gemini:'',perp:'',meta:''},
+  settings:{language:'en',darkMode:false},
+  stats:{streak:0,mistakeBank:0},
+  mistakeCards:[],
+  weeklyReview:{}
+};
+
+/* ===== LOCALSTORAGE ===== */
+function saveData(){
+  try{localStorage.setItem('lumio_v2',JSON.stringify(DATA));}catch(e){}
+}
+function loadData(){
+  try{
+    const s=localStorage.getItem('lumio_v2');
+    if(!s)return;
+    const p=JSON.parse(s);
+    if(p.profile)Object.assign(DATA.profile,p.profile);
+    if(p.subjects){
+      p.subjects.forEach((saved,i)=>{
+        if(!DATA.subjects[i])return;
+        if(saved.hasPapers&&saved.papers){
+          if(saved.papers.I)DATA.subjects[i].papers.I.chapters=saved.papers.I.chapters||[];
+          if(saved.papers.II)DATA.subjects[i].papers.II.chapters=saved.papers.II.chapters||[];
+        }else if(saved.chapters){
+          DATA.subjects[i].chapters=saved.chapters;
+        }
+      });
+    }
+    if(p.skills){
+      p.skills.forEach((saved,i)=>{
+        if(DATA.skills[i]&&saved.parts)DATA.skills[i].parts=saved.parts;
+      });
+    }
+    if(p.flashcards&&p.flashcards.length>DATA.flashcards.length)DATA.flashcards=p.flashcards;
+    if(p.alarms)DATA.alarms=p.alarms;
+    if(p.sources)DATA.sources=p.sources;
+    if(p.apiKeys)Object.assign(DATA.apiKeys,p.apiKeys);
+    if(p.settings)Object.assign(DATA.settings,p.settings);
+    if(p.stats)Object.assign(DATA.stats,p.stats);
+    if(p.mistakeCards)DATA.mistakeCards=p.mistakeCards;
+    if(p.weeklyReview)DATA.weeklyReview=p.weeklyReview;
+  }catch(e){}
+}
+
+/* ===== PROGRESS ===== */
+function subjectChapters(s){
+  return s.hasPapers?[...(s.papers.I.chapters||[]),...(s.papers.II.chapters||[])]:s.chapters||[];
+}
+function subjectProgress(s){
+  const chs=subjectChapters(s);
+  if(!chs.length)return 0;
+  return Math.round(chs.reduce((a,c)=>a+(c.marks||0),0)/chs.length);
+}
+function skillElements(sk){return sk.parts.flatMap(p=>p.elements||[]);}
+function skillProgress(sk){
+  const els=skillElements(sk);
+  if(!els.length)return 0;
+  return Math.round(els.reduce((a,e)=>a+(e.marks||0),0)/els.length);
+}
+function overallProgress(){
+  const ps=DATA.subjects.map(subjectProgress);
+  return ps.length?Math.round(ps.reduce((a,v)=>a+v,0)/ps.length):0;
+}
+function dueReviews(){
+  let n=0;
+  DATA.subjects.forEach(s=>subjectChapters(s).forEach(c=>{if(c.status==='active')n++;}));
+  return n;
+}
+function weekStats(){
+  let done=0,active=0,pending=0;
+  DATA.subjects.forEach(s=>subjectChapters(s).forEach(c=>{
+    if(c.status==='done')done++;else if(c.status==='active')active++;else pending++;
+  }));
+  return{done,active,pending};
+}
+function skillStats(){
+  let done=0,active=0,pending=0;
+  DATA.skills.forEach(sk=>skillElements(sk).forEach(e=>{
+    if(e.status==='done')done++;else if(e.status==='active')active++;else pending++;
+  }));
+  return{done,active,pending};
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+
+/* ===== UPDATE STATS UI ===== */
+function updateStats(){
+  const ov=overallProgress();
+  const gpa=(ov/100*5).toFixed(1);
+  const due=dueReviews();
+  const setT=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setT('stat-streak',DATA.stats.streak);
+  setT('stat-mistake',DATA.stats.mistakeBank);
+  setT('stat-due',due);
+  setT('stat-overall',ov+'%');
+  setT('gpa-pct',ov+'%');
+  setT('gpa-label',gpa);
+  setT('prof-streak',DATA.stats.streak);
+  setT('prof-overall',ov+'%');
+  setT('prof-gpa',gpa);
+  setT('prof-mistake',DATA.stats.mistakeBank);
+  const gf=document.getElementById('gpa-fill');if(gf)gf.style.width=ov+'%';
+  const ws=weekStats();
+  setT('week-done',ws.done);setT('week-active',ws.active);setT('week-pending',ws.pending);
+  const ss=skillStats();
+  setT('sk-done',ss.done);setT('sk-active',ss.active);setT('sk-pending',ss.pending);
+  // Weak topic alert
+  let weak=null,lowestMark=101;
+  DATA.subjects.forEach(s=>{
+    subjectChapters(s).forEach(c=>{
+      if(c.marks<lowestMark&&c.status!=='pending'){weak=s.name+' · '+c.name;lowestMark=c.marks;}
+    });
+  });
+  const at=document.getElementById('home-alert-title'),as=document.getElementById('home-alert-sub');
+  if(at&&as){
+    if(weak&&lowestMark<50){at.textContent='⚠ Weak topic alert';as.textContent=weak;}
+    else{at.textContent='✓ Looking good';as.textContent='No weak topics detected';}
+  }
+  drawStudyDonut();
+  drawSkillsBar();
+  renderSkillsSnapshot();
+  renderTodayTasks();
+  renderMeSkills();
+  renderSpacedReview();
+  renderMistakeBank();
+  renderSubjects();
+  renderSkillsList();
+  saveData();
+}
+
+/* ===== CHARTS ===== */
+function fillRR(ctx,x,y,w,h,r){
+  if(w<=0)return;r=Math.min(r,w/2,h/2);
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();ctx.fill();
+}
+function cssVar(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'';}
+
+function drawStudyDonut(){
+  const canvas=document.getElementById('donut-chart');if(!canvas)return;
+  const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const cx=w/2,cy=h/2,r=Math.min(cx,cy)-3,ir=r*0.56;
+  const segs=DATA.subjects.map(s=>({color:s.color,val:Math.max(subjectProgress(s),1),pct:subjectProgress(s),name:s.name}));
+  const total=segs.reduce((a,x)=>a+x.val,0);
+  let ang=-Math.PI/2;
+  for(const seg of segs){
+    const a=(seg.val/total)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,ang,ang+a);ctx.closePath();
+    ctx.fillStyle=seg.color;ctx.fill();ang+=a;
+  }
+  ctx.beginPath();ctx.arc(cx,cy,ir,0,2*Math.PI);
+  ctx.fillStyle=cssVar('--card')||'#fff';ctx.fill();
+  const ov=overallProgress();
+  ctx.fillStyle=cssVar('--text')||'#1c1c1e';
+  ctx.font='bold 11px -apple-system,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ov+'%',cx,cy);
+  const legend=document.getElementById('donut-legend');
+  if(legend)legend.innerHTML=DATA.subjects.map(s=>`
+    <div class="chart-legend-item">
+      <div class="chart-legend-dot" style="background:${s.color}"></div>
+      <span>${s.name} ${subjectProgress(s)}%</span>
+    </div>`).join('');
+}
+
+function drawSkillsBar(){
+  const canvas=document.getElementById('bar-chart');if(!canvas)return;
+  const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const active=DATA.skills.filter(s=>!s.comingSoon);
+  if(!active.length)return;
+  const barH=12,gap=(h-active.length*barH)/(active.length+1);
+  const maxBW=w-36;
+  const bgCol=cssVar('--border')||'#e5e5ea';
+  const txtCol=cssVar('--text')||'#1c1c1e';
+  active.forEach((sk,i)=>{
+    const pct=skillProgress(sk),y=gap+i*(barH+gap);
+    ctx.fillStyle=bgCol;fillRR(ctx,0,y,maxBW,barH,barH/2);
+    if(pct>0){ctx.fillStyle=sk.color;fillRR(ctx,0,y,(pct/100)*maxBW,barH,barH/2);}
+    ctx.fillStyle=txtCol;ctx.font='bold 9px -apple-system,sans-serif';
+    ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(pct+'%',maxBW+4,y+barH/2);
+  });
+}
+
+/* ===== NAVIGATION ===== */
+function goTo(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const scr=document.getElementById('screen-'+tab);if(scr)scr.classList.add('active');
+  const navId=(tab==='skills')?'study':tab;
+  const nav=document.getElementById('nav-'+navId);if(nav)nav.classList.add('active');
+  const sni=document.getElementById('study-nav-icon'),snl=document.getElementById('nl-study');
+  if(tab==='skills'){
+    if(sni)sni.className='fa-solid fa-bolt-lightning';
+    if(snl)snl.textContent=t('skills');
+  }else{
+    if(sni)sni.className='fa-solid fa-book-open';
+    if(snl)snl.textContent=t('study');
+  }
+  document.getElementById('screen-area').scrollTop=0;
+  if(tab==='home'){setTimeout(()=>{drawStudyDonut();drawSkillsBar();},50);}
+}
+
+/* ===== DOUBLE-TAP STUDY ↔ SKILLS ===== */
+let _tapT=0,_tapTimer=null;
+function handleStudyTap(e){
+  e.preventDefault();e.stopPropagation();
+  const now=Date.now();
+  if(now-_tapT<360){
+    clearTimeout(_tapTimer);_tapT=0;
+    const cur=document.querySelector('.screen.active')?.id;
+    goTo(cur==='screen-skills'?'study':'skills');
+  }else{
+    _tapT=now;
+    _tapTimer=setTimeout(()=>{
+      const cur=document.querySelector('.screen.active')?.id;
+      if(cur!=='screen-skills')goTo('study');
+      const h=document.getElementById('dtap-hint');
+      if(h){
+        h.textContent=cur==='screen-study'?'Double-tap for Skills ⚡':'Double-tap for Study 📚';
+        h.classList.add('show');setTimeout(()=>h.classList.remove('show'),1600);
+      }
+    },210);
+  }
+}
+function handleStudyClick(e){
+  if(e.sourceCapabilities&&e.sourceCapabilities.firesTouchEvents)return;
+  handleStudyTap(e);
+}
+
+/* ===== SHEETS ===== */
+let _sheetStack=[];
+function openSheet(id){
+  _sheetStack=[];
+  document.getElementById('sheet-content').innerHTML=sheetHTML(id);
+  document.getElementById('overlay').classList.add('show');
+  if(id==='sheet-biodata')prefillBiodata();
+}
+function pushSheet(html){
+  _sheetStack.push(document.getElementById('sheet-content').innerHTML);
+  document.getElementById('sheet-content').innerHTML=html;
+  document.getElementById('overlay').classList.add('show');
+}
+function popSheet(){
+  if(_sheetStack.length>0)document.getElementById('sheet-content').innerHTML=_sheetStack.pop();
+  else closeSheet();
+}
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('show');
+  _sheetStack=[];
+}
+
+function sheetHTML(id){
+  const sheets={
+    'sheet-weekly':`
+      <div class="sheet-title" id="sw-title">Weekly Review</div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">What improved this week?</label>
+      <textarea class="inp" style="height:70px;resize:none;margin-bottom:10px" id="sw-improved" placeholder="e.g. Got better at Statistics…"></textarea>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">What failed or was missed?</label>
+      <textarea class="inp" style="height:70px;resize:none;margin-bottom:10px" id="sw-failed" placeholder="e.g. Didn't finish BOM chapter…"></textarea>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Plan for next week</label>
+      <textarea class="inp" style="height:70px;resize:none;margin-bottom:14px" id="sw-plan" placeholder="e.g. Focus on Accounting + mock test…"></textarea>
+      <button class="btn btn-blue" style="width:100%" onclick="saveWeeklyReview()"><i class="fa-solid fa-floppy-disk"></i> Save review</button>`,
+
+    'sheet-add-chapter':`
+      <div class="sheet-title">${t('add_chapter')}</div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Subject</label>
+      <select class="inp" style="margin-bottom:10px" id="ch-subject">
+        ${DATA.subjects.map(s=>`<option>${s.name}</option>`).join('')}
+      </select>
+      <div id="ch-paper-row" style="margin-bottom:10px">
+        <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Paper</label>
+        <select class="inp" id="ch-paper">
+          <option value="I">${t('i_paper')}</option>
+          <option value="II">${t('ii_paper')}</option>
+        </select>
+      </div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Chapter name</label>
+      <input class="inp" style="margin-bottom:10px" id="ch-name" placeholder="e.g. Depreciation">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">${t('marks')} (0–100)</label>
+      <input class="inp" type="number" min="0" max="100" style="margin-bottom:10px" id="ch-marks" placeholder="0" value="0">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Status</label>
+      <select class="inp" style="margin-bottom:14px" id="ch-status">
+        <option value="pending">${t('pending')}</option>
+        <option value="active">${t('active')}</option>
+        <option value="done">${t('done')}</option>
+      </select>
+      <button class="btn btn-blue" style="width:100%" onclick="addChapter()"><i class="fa-solid fa-plus"></i> ${t('add_chapter')}</button>
+      <script>
+        (function(){
+          const sel=document.getElementById('ch-subject');
+          const paperRow=document.getElementById('ch-paper-row');
+          function chk(){
+            const s=DATA.subjects.find(x=>x.name===sel.value);
+            paperRow.style.display=s&&s.hasPapers?'block':'none';
+          }
+          sel.addEventListener('change',chk);chk();
+        })();
+      <\/script>`,
+
+    'sheet-add-skill-el':`
+      <div class="sheet-title">${t('add_el')}</div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Skill</label>
+      <select class="inp" style="margin-bottom:10px" id="el-skill">
+        ${DATA.skills.filter(s=>!s.comingSoon).map(s=>`<option>${s.name}</option>`).join('')}
+      </select>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Part</label>
+      <select class="inp" style="margin-bottom:10px" id="el-part"></select>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Element name</label>
+      <input class="inp" style="margin-bottom:10px" id="el-name" placeholder="e.g. Keyframing">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">${t('marks')} (0–100)</label>
+      <input class="inp" type="number" min="0" max="100" style="margin-bottom:10px" id="el-marks" placeholder="0" value="0">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Status</label>
+      <select class="inp" style="margin-bottom:14px" id="el-status">
+        <option value="pending">${t('pending')}</option>
+        <option value="active">${t('active')}</option>
+        <option value="done">${t('done')}</option>
+      </select>
+      <button class="btn btn-blue" style="width:100%" onclick="addSkillElement()"><i class="fa-solid fa-plus"></i> Add element</button>
+      <script>
+        (function(){
+          const ss=document.getElementById('el-skill'),sp=document.getElementById('el-part');
+          function updateParts(){
+            const sk=DATA.skills.find(x=>x.name===ss.value);
+            sp.innerHTML=sk?sk.parts.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join(''):'<option>No parts</option>';
+          }
+          ss.addEventListener('change',updateParts);updateParts();
+        })();
+      <\/script>`,
+
+    'sheet-add-card':`
+      <div class="sheet-title">Add to Cards</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="pill active" onclick="switchCT('flash',this)">Flashcard</button>
+        <button class="pill" onclick="switchCT('formula',this)">Formula</button>
+        <button class="pill" onclick="switchCT('note',this)">Note</button>
+      </div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Subject</label>
+      <select class="inp" style="margin-bottom:10px" id="ac-sub">
+        ${DATA.subjects.map(s=>`<option>${s.name}</option>`).join('')}
+      </select>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Question / Title</label>
+      <input class="inp" style="margin-bottom:10px" id="ac-q" placeholder="e.g. What is depreciation?">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Answer / Content</label>
+      <textarea class="inp" style="height:80px;resize:none;margin-bottom:14px" id="ac-a" placeholder="e.g. Decrease in asset value…"></textarea>
+      <button class="btn btn-blue" style="width:100%" onclick="saveCustomCard()"><i class="fa-solid fa-plus"></i> Save card</button>`,
+
+    'sheet-formulas':`
+      <div class="sheet-title">Formulas</div>
+      ${[
+        {sub:'Accounting',f:'Assets = Liabilities + Capital'},
+        {sub:'Accounting',f:'Net Profit = Revenue − Expenses'},
+        {sub:'Accounting',f:'Gross Profit = Revenue − COGS'},
+        {sub:'Statistics',f:'Mean = Σx ÷ n'},
+        {sub:'Statistics',f:'SD = √[Σ(x−μ)² ÷ n]'},
+        {sub:'Statistics',f:'Variance = SD²'},
+        {sub:'ICT',f:'Bandwidth = Data ÷ Time'},
+        {sub:'ICT',f:'Binary: 2⁷+2⁶+…+2⁰'},
+      ].map(i=>`<div class="card card-sm" style="margin:0 0 8px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">${i.sub}</div><div style="font-family:monospace;font-size:13px;font-weight:600">${i.f}</div></div>`).join('')}
+      <button class="btn btn-ghost" style="width:100%;margin-top:4px" onclick="openSheet('sheet-add-card')"><i class="fa-solid fa-plus"></i> Add formula</button>`,
+
+    'sheet-notes':`
+      <div class="sheet-title">Cornell Notes</div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px;font-size:12px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:90px 1fr;gap:8px;min-height:80px">
+          <div style="border-right:.5px solid var(--border);padding-right:8px">
+            <div style="font-weight:600;color:var(--text3);font-size:10px;text-transform:uppercase;margin-bottom:4px">Cue</div>
+            <div>What is depreciation?</div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--text3);font-size:10px;text-transform:uppercase;margin-bottom:4px">Notes</div>
+            <div>Loss of value of a fixed asset over time. Types: straight line, reducing balance.</div>
+          </div>
+        </div>
+        <div style="border-top:.5px solid var(--border);padding-top:8px;margin-top:8px">
+          <div style="font-weight:600;color:var(--text3);font-size:10px;text-transform:uppercase;margin-bottom:4px">Summary</div>
+          <div>Depreciation reduces book value annually. Used in profit calculation.</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="openSheet('sheet-add-card')"><i class="fa-solid fa-plus"></i> Add note</button>`,
+
+    'sheet-dyk':`
+      <div class="sheet-title">Do You Know?</div>
+      ${[
+        'Accounting was first formalised by Luca Pacioli in 1494 (Father of Accounting).',
+        'The word "Statistics" comes from German "Statistik" meaning state data.',
+        'The first web browser was "WorldWideWeb" created by Tim Berners-Lee in 1990.',
+        'Bangladesh ranks among the top garment exporters globally.',
+        'BODMAS = Brackets, Orders, Division, Multiplication, Addition, Subtraction.',
+        'RAM is volatile memory — data is lost when power is off.',
+        'The 4 Ps of marketing: Product, Price, Place, Promotion.',
+      ].map(f=>`<div class="alert-card alert-info" style="margin:0 0 8px"><div style="font-size:12px">💡 ${f}</div></div>`).join('')}`,
+
+    'sheet-add-source':`
+      <div class="sheet-title">Add web source</div>
+      <input class="inp" style="margin-bottom:14px" placeholder="e.g. exambd.net" id="new-source">
+      <button class="btn btn-blue" style="width:100%" onclick="addSource()"><i class="fa-solid fa-plus"></i> Add source</button>`,
+
+    'sheet-pdf':`
+      <div class="sheet-title">Upload PDF</div>
+      <div style="position:relative;border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text3);margin-bottom:14px">
+        <i class="fa-solid fa-file-pdf" style="font-size:36px;color:var(--red);margin-bottom:10px;display:block"></i>
+        <div style="font-size:14px;font-weight:600;color:var(--text2)">Tap to select PDF</div>
+        <div style="font-size:12px;margin-top:4px">HSC books, notes, question papers</div>
+        <input type="file" accept=".pdf" style="opacity:0;position:absolute;inset:0" onchange="pdfSelected(this)">
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center">AI will answer from your uploaded book chapter.</div>`,
+
+    'sheet-biodata':`
+      <div class="sheet-title">Edit Biodata</div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Full name</label>
+      <input class="inp" id="bd-name" style="margin-bottom:10px" placeholder="Your full name">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Nickname (shown after greeting)</label>
+      <input class="inp" id="bd-nick" style="margin-bottom:10px" placeholder="e.g. Rafi">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">College / Institution</label>
+      <input class="inp" id="bd-college" style="margin-bottom:10px" placeholder="e.g. Sylhet Government College">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Phone</label>
+      <input class="inp" id="bd-phone" style="margin-bottom:10px" placeholder="+880 …" type="tel">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Email</label>
+      <input class="inp" id="bd-email" style="margin-bottom:10px" placeholder="you@email.com" type="email">
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Location</label>
+      <input class="inp" id="bd-location" style="margin-bottom:14px" placeholder="Sylhet, Bangladesh">
+      <button class="btn btn-blue" style="width:100%" onclick="saveBiodata()"><i class="fa-solid fa-floppy-disk"></i> Save biodata</button>`,
+
+    'sheet-api-key':`
+      <div class="sheet-title">Connect AI Model</div>
+      <div class="alert-card alert-info" style="margin-bottom:12px">
+        <div class="alert-title">Your key stays on your device</div>
+        <div class="alert-sub">Keys are saved in your browser's local storage only — never sent to any server other than the AI provider.</div>
+      </div>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Model</label>
+      <select class="inp" style="margin-bottom:10px" id="ak-model">
+        <option value="gpt">ChatGPT (OpenAI)</option>
+        <option value="gemini">Gemini (Google AI Studio)</option>
+        <option value="perp">Perplexity</option>
+      </select>
+      <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">API Key</label>
+      <input class="inp" style="margin-bottom:6px" id="ak-key" placeholder="Paste your API key here" type="password">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px">Get keys: <a href="https://platform.openai.com" target="_blank" style="color:var(--blue)">OpenAI</a> · <a href="https://aistudio.google.com" target="_blank" style="color:var(--blue)">Google AI Studio</a> · <a href="https://www.perplexity.ai/settings/api" target="_blank" style="color:var(--blue)">Perplexity</a></div>
+      <button class="btn btn-blue" style="width:100%" onclick="saveApiKey()"><i class="fa-solid fa-plug"></i> Connect</button>
+      <button class="btn btn-red btn-sm" style="width:100%;margin-top:8px" onclick="clearApiKey()"><i class="fa-solid fa-trash"></i> Clear key</button>`,
+  };
+  return sheets[id]||'<p style="color:var(--text3);font-size:13px">Content coming soon.</p>';
+}
+
+/* ===== SUBJECT OPEN SHEET (with paper navigation) ===== */
+function openSubjectSheet(name){
+  const s=DATA.subjects.find(x=>x.name===name);
+  if(!s)return;
+  if(s.hasPapers){
+    const pct=subjectProgress(s);
+    const chs=subjectChapters(s);
+    pushSheet(`
+      <div class="sheet-title" style="color:${s.color}">${s.name}</div>
+      <div class="row" style="gap:10px;margin-bottom:12px">
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:${s.color}">${pct}%</div>
+          <div style="font-size:10px;color:var(--text3)">Progress</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--green)">${chs.filter(c=>c.status==='done').length}</div>
+          <div style="font-size:10px;color:var(--text3)">Done</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--text3)">${chs.length}</div>
+          <div style="font-size:10px;color:var(--text3)">Total</div>
+        </div>
+      </div>
+      <div class="prog-bar" style="height:6px;margin-bottom:16px"><div class="prog-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Select Paper</div>
+      <div class="paper-item" style="border-left:4px solid ${s.color}" onclick="openPaperSheet('${s.name}','I')">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${t('i_paper')}</div>
+          <div style="font-size:11px;color:var(--text3)">${s.papers.I.chapters.length} chapters</div>
+        </div>
+        <span style="font-size:13px;font-weight:600;color:${s.color}">${paperProgress(s,'I')}%</span>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+      <div class="paper-item" style="border-left:4px solid ${s.color};margin-bottom:0" onclick="openPaperSheet('${s.name}','II')">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${t('ii_paper')}</div>
+          <div style="font-size:11px;color:var(--text3)">${s.papers.II.chapters.length} chapters</div>
+        </div>
+        <span style="font-size:13px;font-weight:600;color:${s.color}">${paperProgress(s,'II')}%</span>
+        <i class="fa-solid fa-chevron-right chevron"></i>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn btn-blue btn-sm" style="flex:1" onclick="openSheet('sheet-add-chapter')"><i class="fa-solid fa-plus"></i> Add chapter</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="popSheet()">Back</button>
+      </div>`);
+  }else{
+    openPaperSheet(s.name,null);
+  }
+}
+
+function paperProgress(s,p){
+  const chs=s.papers[p].chapters;
+  if(!chs.length)return 0;
+  return Math.round(chs.reduce((a,c)=>a+(c.marks||0),0)/chs.length);
+}
+
+function openPaperSheet(subName,paperKey){
+  const s=DATA.subjects.find(x=>x.name===subName);
+  if(!s)return;
+  const chs=paperKey?s.papers[paperKey].chapters:s.chapters;
+  const paperLabel=paperKey?(paperKey==='I'?t('i_paper'):t('ii_paper')):'';
+  const pct=chs.length?Math.round(chs.reduce((a,c)=>a+(c.marks||0),0)/chs.length):0;
+  pushSheet(`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      ${s.hasPapers?`<div class="sheet-back" onclick="popSheet()"><i class="fa-solid fa-chevron-left"></i> ${s.name}</div>`:''}
+      <div style="font-size:17px;font-weight:700;color:${s.color};flex:1">${s.name}${paperLabel?' · '+paperLabel:''}</div>
+    </div>
+    <div class="prog-bar" style="height:5px;margin-bottom:12px"><div class="prog-fill" style="width:${pct}%;background:${s.color}"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase">${t('chapters')} (${chs.length})</div>
+      <button class="btn btn-blue btn-sm" onclick="openAddChapterHere('${subName}','${paperKey||''}')"><i class="fa-solid fa-plus"></i> Add</button>
+    </div>
+    ${chs.length===0?`<div class="empty"><i class="fa-regular fa-folder-open"></i><div class="empty-title">No chapters yet</div><div class="empty-sub">Tap + Add to get started</div></div>`:''}
+    <div id="chapter-list-inner">
+      ${chs.map((c,i)=>chapterRowHTML(c,i,subName,paperKey,s.color)).join('')}
+    </div>`);
+}
+
+function chapterRowHTML(c,i,subName,paperKey,color){
+  const statusBadge={pending:`<span class="badge badge-gray" onclick="cycleChapterStatus('${subName}','${paperKey||''}',${i})">${t('pending')}</span>`,active:`<span class="badge badge-blue" onclick="cycleChapterStatus('${subName}','${paperKey||''}',${i})">${t('active')}</span>`,done:`<span class="badge badge-green" onclick="cycleChapterStatus('${subName}','${paperKey||''}',${i})">${t('done')}</span>`};
+  return `<div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px" id="chr-${subName}-${paperKey}-${i}">
+    <div class="row" style="margin-bottom:6px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${c.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${t('marks')}: ${c.marks||0}/100</div>
+      </div>
+      ${statusBadge[c.status||'pending']}
+      <button class="btn btn-ghost btn-sm" style="padding:4px 8px;min-height:30px;margin-left:4px" onclick="openEditChapter('${subName}','${paperKey||''}',${i})"><i class="fa-solid fa-pen" style="font-size:11px"></i></button>
+      <button class="btn btn-red btn-sm" style="padding:4px 8px;min-height:30px;margin-left:2px" onclick="deleteChapter('${subName}','${paperKey||''}',${i})"><i class="fa-solid fa-trash" style="font-size:11px"></i></button>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${c.marks||0}%;background:${color}"></div></div>
+  </div>`;
+}
+
+function getChaptersRef(subName,paperKey){
+  const s=DATA.subjects.find(x=>x.name===subName);
+  if(!s)return null;
+  return paperKey?s.papers[paperKey].chapters:s.chapters;
+}
+
+function addChapter(){
+  const subName=document.getElementById('ch-subject')?.value;
+  const s=DATA.subjects.find(x=>x.name===subName);
+  if(!s)return;
+  const paperKey=s.hasPapers?(document.getElementById('ch-paper')?.value||'I'):null;
+  const name=document.getElementById('ch-name')?.value?.trim()||'Chapter';
+  const marks=Math.min(100,Math.max(0,parseInt(document.getElementById('ch-marks')?.value)||0));
+  const status=document.getElementById('ch-status')?.value||'pending';
+  const ch={id:uid(),name,marks,status};
+  const chs=getChaptersRef(subName,paperKey);
+  if(chs){chs.push(ch);updateStats();closeSheet();}
+}
+
+function openAddChapterHere(subName,paperKey){
+  _sheetStack.push(document.getElementById('sheet-content').innerHTML);
+  document.getElementById('sheet-content').innerHTML=sheetHTML('sheet-add-chapter');
+  setTimeout(()=>{
+    const sel=document.getElementById('ch-subject');
+    if(sel)sel.value=subName;
+    const pSel=document.getElementById('ch-paper');
+    if(pSel&&paperKey)pSel.value=paperKey;
+    const pr=document.getElementById('ch-paper-row');
+    const s=DATA.subjects.find(x=>x.name===subName);
+    if(pr)pr.style.display=(s&&s.hasPapers)?'block':'none';
+  },50);
+}
+
+function openEditChapter(subName,paperKey,idx){
+  const chs=getChaptersRef(subName,paperKey);
+  if(!chs)return;
+  const c=chs[idx];if(!c)return;
+  _sheetStack.push(document.getElementById('sheet-content').innerHTML);
+  document.getElementById('sheet-content').innerHTML=`
+    <div class="sheet-back" onclick="popSheet()"><i class="fa-solid fa-chevron-left"></i> Back</div>
+    <div class="sheet-title">Edit Chapter</div>
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Chapter name</label>
+    <input class="inp" id="ec-name" style="margin-bottom:10px" value="${c.name}">
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">${t('marks')} (0–100)</label>
+    <input class="inp" type="number" min="0" max="100" id="ec-marks" style="margin-bottom:4px" value="${c.marks||0}">
+    <input type="range" min="0" max="100" id="ec-slider" class="marks-slider" value="${c.marks||0}" oninput="document.getElementById('ec-marks').value=this.value">
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px;margin-top:10px">Status</label>
+    <select class="inp" style="margin-bottom:14px" id="ec-status">
+      <option value="pending" ${c.status==='pending'?'selected':''}>Pending</option>
+      <option value="active"  ${c.status==='active' ?'selected':''}>Active</option>
+      <option value="done"    ${c.status==='done'   ?'selected':''}>Done</option>
+    </select>
+    <button class="btn btn-blue" style="width:100%" onclick="saveEditChapter('${subName}','${paperKey}',${idx})"><i class="fa-solid fa-floppy-disk"></i> Save</button>`;
+  setTimeout(()=>{
+    const slider=document.getElementById('ec-slider'),marks=document.getElementById('ec-marks');
+    if(slider&&marks)marks.addEventListener('input',()=>slider.value=marks.value);
+  },50);
+}
+
+function saveEditChapter(subName,paperKey,idx){
+  const chs=getChaptersRef(subName,paperKey);
+  if(!chs)return;
+  const c=chs[idx];if(!c)return;
+  c.name=document.getElementById('ec-name')?.value?.trim()||c.name;
+  c.marks=Math.min(100,Math.max(0,parseInt(document.getElementById('ec-marks')?.value)||0));
+  c.status=document.getElementById('ec-status')?.value||'pending';
+  updateStats();popSheet();
+}
+
+function deleteChapter(subName,paperKey,idx){
+  if(!confirm('Delete this chapter?'))return;
+  const chs=getChaptersRef(subName,paperKey);
+  if(chs){chs.splice(idx,1);updateStats();popSheet();}
+}
+
+function cycleChapterStatus(subName,paperKey,idx){
+  const chs=getChaptersRef(subName,paperKey);
+  if(!chs)return;
+  const c=chs[idx];if(!c)return;
+  const cycle={pending:'active',active:'done',done:'pending'};
+  c.status=cycle[c.status||'pending']||'pending';
+  updateStats();
+  openPaperSheet(subName,paperKey||null);
+}
+
+/* ===== SKILLS ===== */
+function openSkillSheet(name){
+  const sk=DATA.skills.find(x=>x.name===name);
+  if(!sk||sk.comingSoon)return;
+  const pct=skillProgress(sk);
+  const els=skillElements(sk);
+  pushSheet(`
+    <div class="sheet-title" style="color:${sk.color}">${sk.name}</div>
+    <div class="row" style="gap:10px;margin-bottom:12px">
+      <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${sk.color}">${pct}%</div>
+        <div style="font-size:10px;color:var(--text3)">Progress</div>
+      </div>
+      <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:var(--green)">${els.filter(e=>e.status==='done').length}</div>
+        <div style="font-size:10px;color:var(--text3)">Done</div>
+      </div>
+      <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:var(--text3)">${els.length}</div>
+        <div style="font-size:10px;color:var(--text3)">Total</div>
+      </div>
+    </div>
+    <div class="prog-bar" style="height:6px;margin-bottom:16px"><div class="prog-fill" style="width:${pct}%;background:${sk.color}"></div></div>
+    <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Select Part</div>
+    ${sk.parts.map(p=>`<div class="paper-item" style="border-left:4px solid ${sk.color}" onclick="openPartSheet('${sk.name}','${p.id}')">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${p.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${p.elements.length} elements</div>
+      </div>
+      <span style="font-size:13px;font-weight:600;color:${sk.color}">${partProgress(p)}%</span>
+      <i class="fa-solid fa-chevron-right chevron"></i>
+    </div>`).join('')}
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn btn-blue btn-sm" style="flex:1" onclick="openSheet('sheet-add-skill-el')"><i class="fa-solid fa-plus"></i> Add element</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="popSheet()">Back</button>
+    </div>`);
+}
+
+function partProgress(p){
+  if(!p.elements.length)return 0;
+  return Math.round(p.elements.reduce((a,e)=>a+(e.marks||0),0)/p.elements.length);
+}
+
+function openPartSheet(skName,partId){
+  const sk=DATA.skills.find(x=>x.name===skName);
+  if(!sk)return;
+  const part=sk.parts.find(p=>p.id===partId);
+  if(!part)return;
+  const pct=partProgress(part);
+  pushSheet(`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div class="sheet-back" onclick="popSheet()"><i class="fa-solid fa-chevron-left"></i> ${sk.name}</div>
+    </div>
+    <div style="font-size:17px;font-weight:700;color:${sk.color};margin-bottom:8px">${part.name}</div>
+    <div class="prog-bar" style="height:5px;margin-bottom:12px"><div class="prog-fill" style="width:${pct}%;background:${sk.color}"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase">Elements (${part.elements.length})</div>
+      <button class="btn btn-blue btn-sm" onclick="openSheet('sheet-add-skill-el')"><i class="fa-solid fa-plus"></i> Add</button>
+    </div>
+    ${part.elements.length===0?`<div class="empty"><i class="fa-regular fa-folder-open"></i><div class="empty-title">No elements yet</div><div class="empty-sub">Tap + Add to get started</div></div>`:''}
+    ${part.elements.map((e,i)=>elRowHTML(e,i,skName,partId,sk.color)).join('')}`);
+}
+
+function elRowHTML(e,i,skName,partId,color){
+  const sb={pending:`<span class="badge badge-gray" onclick="cycleElStatus('${skName}','${partId}',${i})">${t('pending')}</span>`,active:`<span class="badge badge-blue" onclick="cycleElStatus('${skName}','${partId}',${i})">${t('active')}</span>`,done:`<span class="badge badge-green" onclick="cycleElStatus('${skName}','${partId}',${i})">${t('done')}</span>`};
+  return `<div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+    <div class="row" style="margin-bottom:6px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${e.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${t('marks')}: ${e.marks||0}/100</div>
+      </div>
+      ${sb[e.status||'pending']}
+      <button class="btn btn-ghost btn-sm" style="padding:4px 8px;min-height:30px;margin-left:4px" onclick="openEditEl('${skName}','${partId}',${i})"><i class="fa-solid fa-pen" style="font-size:11px"></i></button>
+      <button class="btn btn-red btn-sm" style="padding:4px 8px;min-height:30px;margin-left:2px" onclick="deleteEl('${skName}','${partId}',${i})"><i class="fa-solid fa-trash" style="font-size:11px"></i></button>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${e.marks||0}%;background:${color}"></div></div>
+  </div>`;
+}
+
+function getElsRef(skName,partId){
+  const sk=DATA.skills.find(x=>x.name===skName);
+  if(!sk)return null;
+  const part=sk.parts.find(p=>p.id===partId);
+  return part?part.elements:null;
+}
+
+function addSkillElement(){
+  const skName=document.getElementById('el-skill')?.value;
+  const partId=document.getElementById('el-part')?.value;
+  const name=document.getElementById('el-name')?.value?.trim()||'Element';
+  const marks=Math.min(100,Math.max(0,parseInt(document.getElementById('el-marks')?.value)||0));
+  const status=document.getElementById('el-status')?.value||'pending';
+  const els=getElsRef(skName,partId);
+  if(els){els.push({id:uid(),name,marks,status});updateStats();closeSheet();}
+}
+
+function openEditEl(skName,partId,idx){
+  const els=getElsRef(skName,partId);if(!els)return;
+  const e=els[idx];if(!e)return;
+  _sheetStack.push(document.getElementById('sheet-content').innerHTML);
+  document.getElementById('sheet-content').innerHTML=`
+    <div class="sheet-back" onclick="popSheet()"><i class="fa-solid fa-chevron-left"></i> Back</div>
+    <div class="sheet-title">Edit Element</div>
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">Element name</label>
+    <input class="inp" id="ee-name" style="margin-bottom:10px" value="${e.name}">
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px">${t('marks')} (0–100)</label>
+    <input class="inp" type="number" min="0" max="100" id="ee-marks" style="margin-bottom:4px" value="${e.marks||0}">
+    <input type="range" min="0" max="100" id="ee-slider" class="marks-slider" value="${e.marks||0}" oninput="document.getElementById('ee-marks').value=this.value">
+    <label style="font-size:12px;color:var(--text3);display:block;margin-bottom:4px;margin-top:10px">Status</label>
+    <select class="inp" style="margin-bottom:14px" id="ee-status">
+      <option value="pending" ${e.status==='pending'?'selected':''}>Pending</option>
+      <option value="active"  ${e.status==='active' ?'selected':''}>Active</option>
+      <option value="done"    ${e.status==='done'   ?'selected':''}>Done</option>
+    </select>
+    <button class="btn btn-blue" style="width:100%" onclick="saveEditEl('${skName}','${partId}',${idx})"><i class="fa-solid fa-floppy-disk"></i> Save</button>`;
+  setTimeout(()=>{
+    const sl=document.getElementById('ee-slider'),mk=document.getElementById('ee-marks');
+    if(sl&&mk)mk.addEventListener('input',()=>sl.value=mk.value);
+  },50);
+}
+
+function saveEditEl(skName,partId,idx){
+  const els=getElsRef(skName,partId);if(!els)return;
+  const e=els[idx];if(!e)return;
+  e.name=document.getElementById('ee-name')?.value?.trim()||e.name;
+  e.marks=Math.min(100,Math.max(0,parseInt(document.getElementById('ee-marks')?.value)||0));
+  e.status=document.getElementById('ee-status')?.value||'pending';
+  updateStats();popSheet();
+}
+
+function deleteEl(skName,partId,idx){
+  if(!confirm('Delete this element?'))return;
+  const els=getElsRef(skName,partId);
+  if(els){els.splice(idx,1);updateStats();popSheet();}
+}
+
+function cycleElStatus(skName,partId,idx){
+  const els=getElsRef(skName,partId);if(!els)return;
+  const e=els[idx];if(!e)return;
+  const cy={pending:'active',active:'done',done:'pending'};
+  e.status=cy[e.status||'pending'];
+  updateStats();openPartSheet(skName,partId);
+}
+
+/* ===== RENDER FUNCTIONS ===== */
+function renderSubjects(){
+  const el=document.getElementById('subjects-list');if(!el)return;
+  el.innerHTML=DATA.subjects.map(s=>{
+    const pct=subjectProgress(s);
+    const chs=subjectChapters(s);
+    const done=chs.filter(c=>c.status==='done').length;
+    return `<div class="row row-sep row-item" style="cursor:pointer" onclick="openSubjectSheet('${s.name}')">
+      <div class="dot" style="background:${s.color}"></div>
+      <div class="cell-body">
+        <div class="cell-title">${s.name}${s.hasPapers?'<span style="font-size:10px;color:var(--text3);margin-left:6px">I & II Paper</span>':''}</div>
+        <div class="cell-sub">${done}/${chs.length} ${t('chapters')}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${s.color};margin-right:4px">${pct}%</div>
+      <i class="fa-solid fa-chevron-right chevron"></i>
+    </div>`;
+  }).join('');
+}
+
+function renderSkillsList(){
+  const el=document.getElementById('skills-list');if(!el)return;
+  el.innerHTML=DATA.skills.map(sk=>{
+    const pct=skillProgress(sk);
+    const els=skillElements(sk);
+    const done=els.filter(e=>e.status==='done').length;
+    if(sk.comingSoon)return `<div class="row row-sep row-item coming-soon">
+      <div class="cell-icon" style="background:#f2f2f7"><i class="fa-solid ${sk.icon}" style="color:var(--text3)"></i></div>
+      <div class="cell-body"><div class="cell-title">${sk.name}<span class="cs-badge">Coming soon</span></div><div class="cell-sub">Not yet available</div></div>
+    </div>`;
+    return `<div class="row row-sep row-item" style="cursor:pointer" onclick="openSkillSheet('${sk.name}')">
+      <div class="cell-icon" style="background:${sk.color}22"><i class="fa-solid ${sk.icon}" style="color:${sk.color}"></i></div>
+      <div class="cell-body">
+        <div class="cell-title">${sk.name}</div>
+        <div class="cell-sub">${done}/${els.length} elements</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${sk.color}"></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${sk.color};margin-right:4px">${pct}%</div>
+      <i class="fa-solid fa-chevron-right chevron"></i>
+    </div>`;
+  }).join('');
+}
+
+function renderSpacedReview(){
+  const el=document.getElementById('spaced-list');if(!el)return;
+  let items=[];
+  DATA.subjects.forEach(s=>subjectChapters(s).forEach(c=>{
+    if(c.status==='active')items.push({sub:s.name,color:s.color,name:c.name});
+  }));
+  el.innerHTML=items.length?items.slice(0,5).map(item=>`
+    <div class="row row-sep row-item">
+      <div class="dot" style="background:${item.color}"></div>
+      <div class="cell-body"><div class="cell-title">${item.sub} · ${item.name}</div><div class="cell-sub">Active — tap to review</div></div>
+      <span class="badge badge-blue">Active</span>
+    </div>`).join(''):'<div class="empty"><i class="fa-regular fa-clock"></i><div class="empty-title">No reviews due</div><div class="empty-sub">Add & activate chapters</div></div>';
+}
+
+function renderMistakeBank(){
+  const el=document.getElementById('mistake-list');if(!el)return;
+  el.innerHTML=DATA.mistakeCards.length?DATA.mistakeCards.slice(-5).reverse().map((m,i)=>`
+    <div class="row row-sep row-item">
+      <div class="cell-icon" style="background:#ffeef0"><i class="fa-solid fa-xmark" style="color:var(--red);font-size:13px"></i></div>
+      <div class="cell-body"><div class="cell-title">${m.sub} · ${m.q.substring(0,40)}…</div><div class="cell-sub">Wrong answer recorded</div></div>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--text3);padding:4px 0">Wrong flashcard answers appear here automatically.</div>';
+}
+
+function renderSkillsSnapshot(){
+  const el=document.getElementById('skills-snapshot');if(!el)return;
+  el.innerHTML=DATA.skills.filter(s=>!s.comingSoon).map((sk,i,arr)=>{
+    const pct=skillProgress(sk);const isLast=i===arr.length-1;
+    const statusBadge=pct>=80?`<div class="badge badge-green">Strong</div>`:pct>=40?`<div class="badge badge-orange">Active</div>`:`<div class="badge badge-blue">Learning</div>`;
+    return `<div class="row ${isLast?'':'row-sep'} row-item">
+      <div class="cell-icon" style="background:${sk.color}22"><i class="fa-solid ${sk.icon}" style="color:${sk.color}"></i></div>
+      <div class="cell-body"><div class="cell-title">${sk.name}</div><div class="cell-sub">${skillElements(sk).length} elements · ${pct}%</div></div>
+      ${statusBadge}
+    </div>`;
+  }).join('')||'<div class="empty" style="padding:20px"><i class="fa-solid fa-bolt-lightning"></i><div class="empty-title">No skills data</div></div>';
+}
+
+function renderMeSkills(){
+  const el=document.getElementById('me-skills-card');if(!el)return;
+  const active=DATA.skills.filter(s=>!s.comingSoon);
+  if(active.every(s=>skillElements(s).length===0)){
+    el.innerHTML='<div class="empty"><i class="fa-solid fa-bolt-lightning"></i><div class="empty-title">No skill data yet</div><div class="empty-sub">Go to Skills tab to add elements</div></div>';return;
+  }
+  el.innerHTML=active.map((sk,i,arr)=>{
+    const pct=skillProgress(sk);const els=skillElements(sk);const isLast=i===arr.length-1;
+    return `${i>0?'<div style="height:.5px;background:var(--border);margin:2px 0 10px"></div>':''}
+    <div style="margin-bottom:${isLast?0:14}px">
+      <div class="row" style="margin-bottom:8px">
+        <div class="cell-icon" style="background:${sk.color}22"><i class="fa-solid ${sk.icon}" style="color:${sk.color}"></i></div>
+        <div class="cell-body"><div class="cell-title" style="font-weight:600">${sk.name}</div><div class="cell-sub">${els.length} elements</div></div>
+        <div style="font-size:16px;font-weight:700;color:${sk.color}">${pct}%</div>
+      </div>
+      ${els.slice(0,3).map(e=>`<div style="margin-bottom:6px">
+        <div class="row" style="margin-bottom:2px">
+          <div style="font-size:11px;font-weight:500;flex:1">${e.name}</div>
+          <div style="font-size:11px;font-weight:600;color:${sk.color}">${e.marks||0}%</div>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${e.marks||0}%;background:${sk.color}"></div></div>
+      </div>`).join('')}
+      ${els.length>3?`<div style="font-size:11px;color:var(--text3);margin-top:4px">+${els.length-3} more in Skills tab</div>`:''}
+    </div>`;
+  }).join('');
+  // Append Data Science coming soon
+  el.innerHTML+=`<div style="height:.5px;background:var(--border);margin:2px 0 10px"></div>
+  <div class="coming-soon"><div class="row">
+    <div class="cell-icon" style="background:#f2f2f7"><i class="fa-solid fa-flask" style="color:var(--text3)"></i></div>
+    <div class="cell-body"><div class="cell-title" style="font-weight:600;color:var(--text3)">Data Science<span class="cs-badge">Coming soon</span></div><div class="cell-sub">Machine learning · Deep learning</div></div>
+  </div></div>`;
+}
+
+function renderTodayTasks(){
+  const el=document.getElementById('today-tasks');if(!el)return;
+  let tasks=[];
+  DATA.subjects.forEach(s=>{
+    subjectChapters(s).forEach(c=>{
+      if(c.status==='active')tasks.push({sub:s.name,color:s.color,ch:c.name});
+    });
+  });
+  if(!tasks.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">No active chapters. Open Study tab to activate chapters.</div>';return;}
+  el.innerHTML=tasks.slice(0,5).map((task,i)=>`
+    <div class="row row-sep row-item" style="${i===Math.min(tasks.length,5)-1?'border-bottom:none':''}">
+      <div class="dot" style="background:${task.color}"></div>
+      <div class="cell-body cell-title">${task.sub} · ${task.ch}</div>
+      <div class="cell-right">${t('active')}</div>
+    </div>`).join('');
+}
+
+/* ===== CARDS FILTER ===== */
+let currentFilter='All';
+function renderCardsFilter(){
+  const el=document.getElementById('cards-filter');if(!el)return;
+  const items=['All',...DATA.subjects.map(s=>s.name)];
+  el.innerHTML=items.map((s,i)=>`<button class="pill ${i===0?'active':''}" onclick="filterCards(this,'${s}')">${s}</button>`).join('');
+}
+function filterCards(btn,sub){
+  document.querySelectorAll('#cards-filter .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter=sub;
+  currentCard=0;updateCard();
+}
+function filteredCards(){
+  return currentFilter==='All'?DATA.flashcards:DATA.flashcards.filter(c=>c.sub===currentFilter);
+}
+
+/* ===== FLASHCARDS / MCQ ===== */
+let currentCard=0,cardFlipped=false,mcqAnswered=false;
+function updateCard(){
+  const cards=filteredCards();
+  if(!cards.length){
+    document.getElementById('fc-question').textContent='No cards for this subject.';
+    document.getElementById('fc-options').style.display='none';
+    document.getElementById('fc-answer').style.display='none';
+    document.getElementById('fc-src').textContent='';
+    document.getElementById('card-count').textContent='0 cards';
+    return;
+  }
+  if(currentCard>=cards.length)currentCard=0;
+  const c=cards[currentCard];
+  const fc=document.getElementById('flashcard');
+  document.getElementById('fc-question').textContent=c.q;
+  document.getElementById('fc-answer').textContent=c.a||'';
+  document.getElementById('fc-answer').style.display='none';
+  document.getElementById('fc-src').textContent=c.src?'Source: '+c.src:'';
+  fc.classList.remove('flipped');
+  cardFlipped=false;mcqAnswered=false;
+  if(c.options){
+    document.getElementById('fc-options').style.display='grid';
+    document.getElementById('fc-options').innerHTML=c.options.map((opt,i)=>`
+      <button class="mcq-opt" onclick="selectMCQ(${i})">
+        <span class="mcq-letter">${['A','B','C','D'][i]}</span>
+        <span style="flex:1">${opt}</span>
+      </button>`).join('');
+    document.getElementById('card-count').textContent=`Card ${currentCard+1} of ${cards.length} · ${t('sel_ans')}`;
+    fc.onclick=null;
+  }else{
+    document.getElementById('fc-options').style.display='none';
+    document.getElementById('card-count').textContent=`Card ${currentCard+1} of ${cards.length} · ${t('tap_flip')}`;
+    fc.onclick=()=>flipCard();
+  }
+}
+function selectMCQ(i){
+  if(mcqAnswered)return;
+  mcqAnswered=true;
+  const cards=filteredCards();const c=cards[currentCard];
+  const opts=document.querySelectorAll('.mcq-opt');
+  opts.forEach((btn,idx)=>{
+    if(idx===c.correct)btn.classList.add('reveal-correct');
+    else if(idx===i&&i!==c.correct)btn.classList.add('wrong-pick');
+    if(idx===i&&i===c.correct)btn.classList.add('correct-pick');
+  });
+  if(i!==c.correct){
+    DATA.stats.mistakeBank++;
+    DATA.mistakeCards.push({sub:c.sub,q:c.q});
+    if(DATA.mistakeCards.length>50)DATA.mistakeCards.shift();
+    document.getElementById('stat-mistake').textContent=DATA.stats.mistakeBank;
+    document.getElementById('prof-mistake').textContent=DATA.stats.mistakeBank;
+    saveData();
+  }
+  document.getElementById('card-count').textContent=i===c.correct?'✓ Correct!':'✗ Wrong — correct answer highlighted';
+}
+function flipCard(){
+  const c=filteredCards()[currentCard];
+  if(c&&c.options)return;
+  cardFlipped=!cardFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped',cardFlipped);
+  document.getElementById('fc-answer').style.display=cardFlipped?'block':'none';
+}
+function handleCardTap(){
+  const c=filteredCards()[currentCard];
+  if(c&&c.options)return;
+  flipCard();
+}
+function cardResult(r){
+  if(r==='wrong'&&!filteredCards()[currentCard]?.options){
+    DATA.stats.mistakeBank++;
+    const c=filteredCards()[currentCard];
+    DATA.mistakeCards.push({sub:c.sub,q:c.q});
+    if(DATA.mistakeCards.length>50)DATA.mistakeCards.shift();
+    document.getElementById('stat-mistake').textContent=DATA.stats.mistakeBank;
+    document.getElementById('prof-mistake').textContent=DATA.stats.mistakeBank;
+    saveData();
+  }
+  const cards=filteredCards();
+  currentCard=(currentCard+1)%cards.length;
+  updateCard();
+}
+function saveCustomCard(){
+  const sub=document.getElementById('ac-sub')?.value;
+  const q=document.getElementById('ac-q')?.value?.trim();
+  const a=document.getElementById('ac-a')?.value?.trim();
+  if(!q)return;
+  DATA.flashcards.push({q,a,sub,src:'custom'});
+  renderCardsFilter();updateCard();closeSheet();saveData();
+}
+function loadMCQFromSources(){
+  const extra=[
+    {q:'Which is an example of external liability?',options:['Capital','Creditors','Owner drawings','Reserves'],correct:1,sub:'Accounting',src:'sattacademy.com'},
+    {q:'Mode is the value that:',options:['Occurs most often','Is in the middle','Is the average','Has the highest'],correct:0,sub:'Statistics',src:'sattacademy.com'},
+    {q:'Which topology connects all devices in a circle?',options:['Bus','Star','Ring','Mesh'],correct:2,sub:'ICT',src:'10minuteschool.com'},
+    {q:'Span of control refers to:',options:['Authority of a manager','Number of subordinates managed','Company size','Dept budget'],correct:1,sub:'BOM',src:'nctb.gov.bd'},
+    {q:'Which pricing strategy sets initial price low?',options:['Skimming','Penetration','Premium','Bundle'],correct:1,sub:'PMM',src:'sattacademy.com'},
+    {q:'NIC stands for:',options:['National Identity Card','Network Interface Card','New Internet Connection','No Input Card'],correct:1,sub:'ICT',src:'10minuteschool.com'},
+  ];
+  let added=0;
+  extra.forEach(card=>{
+    if(!DATA.flashcards.find(f=>f.q===card.q)){DATA.flashcards.push(card);added++;}
+  });
+  renderCardsFilter();updateCard();saveData();
+  alert(`Loaded ${added} new MCQ from trusted HSC sources! Total: ${DATA.flashcards.length} cards`);
+}
+function switchCT(t,btn){document.querySelectorAll('#sheet-content .pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
+
+/* ===== AI MODELS ===== */
+const modelColors={claude:'#7c3aed',gpt:'#10a37f',gemini:'#4285f4',perp:'#1c64f2',meta:'#0866ff'};
+const modelNames={claude:'Claude',gpt:'ChatGPT',gemini:'Gemini',perp:'Perplexity',meta:'Meta AI'};
+const modeNames={tutor:'Tutor',exam:'Exam evaluator',revision:'Rapid revision',simplify:'Simplify it',deep:'Deep explanation'};
+let currentModel='claude',currentMode='tutor',chatHistory=[];
+
+function selectModel(m,btn){
+  currentModel=m;
+  document.querySelectorAll('#ai-model-row .pill').forEach(p=>{p.classList.remove('active');p.style.background='';p.style.color='';p.style.borderColor='';});
+  btn.classList.add('active');btn.style.background=modelColors[m];btn.style.color='#fff';btn.style.borderColor=modelColors[m];
+  const kr=document.getElementById('ai-key-row');
+  const kl=document.getElementById('ai-key-label');
+  const ks=document.getElementById('ai-key-sub');
+  const kd=document.getElementById('ai-key-dot');
+  if(m==='claude'){if(kr)kr.style.display='none';}
+  else if(m==='meta'){
+    if(kr)kr.style.display='flex';
+    if(kl)kl.textContent='Meta AI — No public API';
+    if(ks)ks.textContent='Meta AI does not have a public API. Chat will show info.';
+    if(kd){kd.className='api-dot no';}
+  }else{
+    if(kr)kr.style.display='flex';
+    const hasKey=DATA.apiKeys[m]&&DATA.apiKeys[m].length>0;
+    if(kl)kl.textContent=`${modelNames[m]} API Key`;
+    if(ks)ks.textContent=hasKey?'Connected — messages sent directly to '+modelNames[m]:'Not connected · Tap to add your API key';
+    if(kd)kd.className='api-dot '+(hasKey?'ok':'no');
+  }
+  const bubble=document.getElementById('chat-messages').querySelector('.ai-bubble.ai strong');
+  if(bubble)bubble.textContent=`${modelNames[m]} — ${modeNames[currentMode]||'Tutor'} mode`;
+}
+
+function selectMode(m,btn){
+  currentMode=m;
+  document.querySelectorAll('#screen-ai .pill-row:nth-child(3) .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();if(!msg)return;
+  input.value='';
+  addBubble(msg,'user');
+  chatHistory.push({role:'user',content:msg});
+  const thinkBubble=addBubble('<div class="spinner"></div>','ai');
+  try{
+    if(currentModel==='claude'){
+      const sys=`You are a smart HSC study assistant for a Bangladesh Commerce student (HSC 2027). Mode: ${modeNames[currentMode]}. Subjects: Accounting, ICT, Statistics, Bangla, English, BOM, PMM. Be concise, exam-focused, use simple language. Current language preference: ${DATA.settings.language==='bn'?'Bangla (respond in Bangla)':'English'}.`;
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:chatHistory})});
+      const data=await resp.json();
+      const reply=data.content?.map(b=>b.text||'').join('')||'Sorry, could not get a response.';
+      chatHistory.push({role:'assistant',content:reply});
+      thinkBubble.innerHTML=reply.replace(/\n/g,'<br>');
+    }else if(currentModel==='gpt'){
+      const key=DATA.apiKeys.gpt;
+      if(!key){thinkBubble.textContent='Please add your OpenAI API key in the Connect button above.';return;}
+      const resp=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:'You are an HSC Commerce study assistant for Bangladesh.'},...chatHistory]})});
+      const data=await resp.json();
+      if(data.error){thinkBubble.textContent='OpenAI error: '+data.error.message;return;}
+      const reply=data.choices?.[0]?.message?.content||'No response.';
+      chatHistory.push({role:'assistant',content:reply});
+      thinkBubble.innerHTML=reply.replace(/\n/g,'<br>');
+    }else if(currentModel==='gemini'){
+      const key=DATA.apiKeys.gemini;
+      if(!key){thinkBubble.textContent='Please add your Google Gemini API key in the Connect button above.';return;}
+      const msgs=chatHistory.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+      const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:msgs})});
+      const data=await resp.json();
+      if(data.error){thinkBubble.textContent='Gemini error: '+data.error.message;return;}
+      const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response.';
+      chatHistory.push({role:'assistant',content:reply});
+      thinkBubble.innerHTML=reply.replace(/\n/g,'<br>');
+    }else if(currentModel==='perp'){
+      const key=DATA.apiKeys.perp;
+      if(!key){thinkBubble.textContent='Please add your Perplexity API key in the Connect button above.';return;}
+      const resp=await fetch('https://api.perplexity.ai/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'llama-3.1-sonar-small-128k-online',messages:[{role:'system',content:'HSC Commerce study assistant for Bangladesh.'},...chatHistory]})});
+      const data=await resp.json();
+      if(data.error){thinkBubble.textContent='Perplexity error: '+JSON.stringify(data.error);return;}
+      const reply=data.choices?.[0]?.message?.content||'No response.';
+      chatHistory.push({role:'assistant',content:reply});
+      thinkBubble.innerHTML=reply.replace(/\n/g,'<br>');
+    }else if(currentModel==='meta'){
+      thinkBubble.textContent='Meta AI does not provide a public API. To use Meta AI, visit meta.ai directly. You can continue using Claude, ChatGPT, Gemini, or Perplexity here with their API keys.';
+    }
+  }catch(e){thinkBubble.textContent='Connection error: '+e.message+'. Check your internet and API key.';}
+  const area=document.getElementById('chat-messages');
+  area.scrollTop=area.scrollHeight;
+}
+
+function addBubble(text,role){
+  const area=document.getElementById('chat-messages');
+  const el=document.createElement('div');
+  el.className='ai-bubble '+role;
+  el.innerHTML=text;
+  area.appendChild(el);
+  area.scrollTop=area.scrollHeight;
+  return el;
+}
+
+function saveApiKey(){
+  const model=document.getElementById('ak-model')?.value;
+  const key=document.getElementById('ak-key')?.value?.trim();
+  if(!model||!key)return;
+  DATA.apiKeys[model]=key;saveData();closeSheet();
+  const btn=document.getElementById('m-'+model);
+  if(btn)selectModel(model,btn);
+}
+function clearApiKey(){
+  const model=document.getElementById('ak-model')?.value;
+  if(!model)return;
+  DATA.apiKeys[model]='';saveData();closeSheet();
+}
+
+function connectGoogle(){
+  const status=document.getElementById('google-status');
+  const btn=document.getElementById('google-btn');
+  const url='https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri='+encodeURIComponent(window.location.href)+'&response_type=token&scope=email+profile';
+  if(status&&btn){
+    status.textContent='Opening Google sign-in…';
+    btn.textContent='Connecting';
+  }
+  window.open(url,'_blank','width=500,height=600');
+  setTimeout(()=>{if(status)status.textContent='Sync notes & history (configure Google OAuth to enable)';if(btn)btn.textContent='Sync';},2000);
+}
+
+/* ===== AI SOURCES ===== */
+function renderSources(){
+  const el=document.getElementById('sources-list');if(!el)return;
+  el.innerHTML=DATA.sources.map((s,i)=>`
+    <div class="row row-sep row-item">
+      <div class="cell-icon" style="background:#f2f2f7;width:28px;height:28px;border-radius:7px;font-size:12px"><i class="fa-solid fa-globe" style="color:var(--blue)"></i></div>
+      <div class="cell-body"><div class="cell-title" style="font-size:12px">${s}</div></div>
+      <span onclick="removeSource(${i})" style="color:var(--red);font-size:13px;cursor:pointer;padding:4px 6px"><i class="fa-solid fa-xmark"></i></span>
+    </div>`).join('');
+}
+function addSource(){const v=document.getElementById('new-source')?.value?.trim();if(v){DATA.sources.push(v);closeSheet();renderSources();saveData();}}
+function removeSource(i){DATA.sources.splice(i,1);renderSources();saveData();}
+
+/* ===== ALARMS ===== */
+function renderAlarms(){
+  const el=document.getElementById('alarms-list');if(!el)return;
+  el.innerHTML=DATA.alarms.map((a,i)=>`
+    <div class="row row-sep row-item">
+      <div class="cell-icon" style="background:var(--bg);width:28px;height:28px;border-radius:8px">
+        <i class="fa-solid fa-bell" style="font-size:13px;color:${a.color}"></i>
+      </div>
+      <div class="cell-body">
+        <div class="cell-title">${a.label}</div>
+        <div class="cell-sub">${a.time} · ${a.repeat}</div>
+      </div>
+      <div class="toggle ${a.on?'on':'off'}" onclick="toggleAlarm(${i})"><div class="toggle-thumb"></div></div>
+    </div>`).join('');
+}
+function toggleAlarm(i){DATA.alarms[i].on=!DATA.alarms[i].on;renderAlarms();saveData();}
+
+/* ===== BIODATA ===== */
+function prefillBiodata(){
+  setTimeout(()=>{
+    const b=DATA.profile;
+    const s={name:'bd-name',nickname:'bd-nick',college:'bd-college',phone:'bd-phone',email:'bd-email',location:'bd-location'};
+    Object.entries(s).forEach(([key,id])=>{const el=document.getElementById(id);if(el)el.value=b[key]||'';});
+  },50);
+}
+function saveBiodata(){
+  const g=(id)=>document.getElementById(id)?.value||'';
+  DATA.profile.name=g('bd-name');DATA.profile.nickname=g('bd-nick');
+  DATA.profile.college=g('bd-college');DATA.profile.phone=g('bd-phone');
+  DATA.profile.email=g('bd-email');DATA.profile.location=g('bd-location')||'Sylhet, Bangladesh';
+  const name=DATA.profile.name;
+  if(name){
+    document.getElementById('prof-name').textContent=name;
+    document.getElementById('av-letter').textContent=name[0].toUpperCase();
+    document.getElementById('prof-sub').textContent=(DATA.profile.college||'HSC-27 Commerce')+' · '+(DATA.profile.location||'Sylhet');
+  }
+  saveData();closeSheet();tick();
+}
+function saveWeeklyReview(){
+  DATA.weeklyReview={improved:document.getElementById('sw-improved')?.value,failed:document.getElementById('sw-failed')?.value,plan:document.getElementById('sw-plan')?.value,date:new Date().toISOString()};
+  saveData();closeSheet();
+}
+function pdfSelected(input){
+  const file=input?.files?.[0];if(!file)return;
+  closeSheet();
+  setTimeout(()=>{addBubble(`PDF uploaded: <strong>${file.name}</strong><br>Ask me anything from it!`,'ai');goTo('ai');},300);
+}
+
+/* ===== DARK MODE ===== */
+function toggleDark(){
+  const t=document.getElementById('dark-toggle');
+  const on=t.classList.toggle('on');t.classList.toggle('off',!on);
+  DATA.settings.darkMode=on;
+  const r=document.documentElement.style;
+  if(on){r.setProperty('--bg','#1c1c1e');r.setProperty('--card','#2c2c2e');r.setProperty('--text','#fff');r.setProperty('--text2','#ebebf5');r.setProperty('--text3','#aeaeb2');r.setProperty('--border','#3a3a3c');document.body.style.background='#000';}
+  else{r.setProperty('--bg','#f2f2f7');r.setProperty('--card','#fff');r.setProperty('--text','#1c1c1e');r.setProperty('--text2','#3c3c43');r.setProperty('--text3','#8e8e93');r.setProperty('--border','#e5e5ea');document.body.style.background='#f2f2f7';}
+  document.querySelector('.status-bar:first-of-type')&&(document.querySelectorAll('.status-bar').forEach(sb=>{sb.style.background=on?'rgba(28,28,30,.85)':'rgba(242,242,247,.85)';}));
+  drawStudyDonut();drawSkillsBar();saveData();
+}
+
+/* ===== LANGUAGE ===== */
+function setLang(lang,btn){
+  DATA.settings.language=lang;
+  document.getElementById('lang-en')?.classList.toggle('active',lang==='en');
+  document.getElementById('lang-bn')?.classList.toggle('active',lang==='bn');
+  document.body.classList.toggle('lang-bn',lang==='bn');
+  applyTranslations();saveData();
+}
+function applyTranslations(){
+  const ids={
+    'nl-home':'home','nl-study':'study','nl-cards':'cards','nl-ai':'ai','nl-me':'me',
+    'lbl-insights':'insights','lbl-today-study':'today_study','lbl-skills-today':'skills_today',
+    'lbl-subjects':'subjects','lbl-weekly':'weekly','lbl-mistake-bank':'mistake_bank',
+    'lbl-streak':'day_streak','lbl-mistake':'mistake_count','lbl-due':'due','lbl-overall':'overall',
+    'lbl-add-chapter':'add_chapter','lbl-skills-title':'skills','lbl-study-title':'study',
+    'lbl-skill-areas':'skill_areas','lbl-add-el':'add_el','lbl-cards-title':'cards',
+    'lbl-fc-session':'fc_session','lbl-ref-boxes':'ref_boxes','lbl-add-card':'add_card',
+    'lbl-app-settings':'app','lbl-dark-mode':'dark_mode','lbl-edit-bio':'edit_bio',
+    'lbl-language':'language','lbl-study-chart':'study_chart','lbl-skills-chart':'skills_chart',
+  };
+  Object.entries(ids).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=t(key);});
+  const snl=document.getElementById('nl-study');
+  if(snl){const cur=document.querySelector('.screen.active')?.id;snl.textContent=cur==='screen-skills'?t('skills'):t('study');}
+}
+
+/* ===== CLOCK & DATE ===== */
+function tick(){
+  const now=new Date();
+  const h=now.getHours().toString().padStart(2,'0'),m=now.getMinutes().toString().padStart(2,'0');
+  document.querySelectorAll('#clock,#clock2,#clock3').forEach(el=>{if(el)el.textContent=h+':'+m;});
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const ds=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()];
+  const hr=now.getHours();
+  const greet=hr<12?t('good_morning'):hr<17?t('good_afternoon'):t('good_evening');
+  const hd=document.getElementById('home-date');if(hd)hd.textContent=ds;
+  const gr=document.getElementById('greeting');if(gr)gr.textContent=greet;
+  const nick=DATA.profile.nickname;
+  const gn=document.getElementById('greeting-nick');if(gn)gn.textContent=nick?', '+nick:'';
+  const pd=document.getElementById('profile-date');if(pd)pd.textContent=ds+' '+now.getFullYear();
+}
+
+/* ===== INIT ===== */
+loadData();
+// Apply saved dark mode
+if(DATA.settings.darkMode){
+  setTimeout(()=>{const dt=document.getElementById('dark-toggle');if(dt){dt.classList.remove('off');dt.classList.add('on');toggleDark();}},0);
+}
+// Apply saved language
+if(DATA.settings.language==='bn'){
+  document.body.classList.add('lang-bn');
+  setTimeout(()=>{const bn=document.getElementById('lang-bn'),en=document.getElementById('lang-en');if(bn){bn.classList.add('active');}if(en){en.classList.remove('active');}},0);
+}
+// Apply saved profile
+if(DATA.profile.name){
+  document.getElementById('prof-name').textContent=DATA.profile.name;
+  document.getElementById('av-letter').textContent=DATA.profile.name[0].toUpperCase();
+  document.getElementById('prof-sub').textContent=(DATA.profile.college||'HSC-27 Commerce')+' · '+(DATA.profile.location||'Sylhet');
+}
+
+tick();setInterval(tick,15000);
+renderCardsFilter();updateCard();
+renderSources();renderAlarms();
+updateStats();
+applyTranslations();
+setTimeout(()=>{drawStudyDonut();drawSkillsBar();},100);
+
+// PWA install
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._ip=e;});
+</script>
+
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
